@@ -7,12 +7,12 @@ const baseApiUrl = async () => {
   return base.data.api;
 };
 
-(module.exports = {
+module.exports = {
   config: {
     name: "quiz2",
     aliases: ["qz2"],
     version: "1.0",
-    author: "asif",
+    author: "Dipto",
     countDown: 0,
     role: 0,
     category: "game",
@@ -31,7 +31,7 @@ const baseApiUrl = async () => {
 
     try {
       const response = await axios.get(
-        `${await baseApiUrl()}/quiz2?category=${category}&q=random`,
+        `${await baseApiUrl()}/quiz?category=${category}&q=random`,
       );
 
       const quizData = response.data.question;
@@ -114,4 +114,4 @@ global.GoatBot.onReply.set(Reply.messageID, Reply);
         break;
     }
   },
-});
+};

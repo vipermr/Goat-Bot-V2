@@ -1,6 +1,7 @@
 module.exports = {
   config: {
     name: "pen",
+    aliases: ["pending", "pendi", "p"],
     version: "1.2",
     author: "NAFIJ_PRO_😾",
     countDown: 5,

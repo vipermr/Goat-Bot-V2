@@ -1,105 +1,86 @@
 module.exports = {
-	config: {
-		name: "setrole",
-		version: "1.4",
-		author: "NTKhang",
-		countDown: 5,
-		role: 1,
-		description: {
-			vi: "Chỉnh sửa role của lệnh (những lệnh có role < 2)",
-			en: "Edit role of command (commands with role < 2)"
-		},
-		category: "info",
-		guide: {
-			vi: "   {pn} <commandName> <new role>: set role mới cho lệnh"
-				+ "\n   Với:"
-				+ "\n   + <commandName>: tên lệnh"
-				+ "\n   + <new role>: role mới của lệnh với:"
-				+ "\n   + <new role> = 0: lệnh có thể được sử dụng bởi mọi thành viên trong nhóm"
-				+ "\n   + <new role> = 1: lệnh chỉ có thể được sử dụng bởi quản trị viên"
-				+ "\n   + <new role> = default: reset role lệnh về mặc định"
-				+ "\n   Ví dụ:"
-				+ "\n    {pn} rank 1: (lệnh rank sẽ chỉ có thể được sử dụng bởi quản trị viên)"
-				+ "\n    {pn} rank 0: (lệnh rank sẽ có thể được sử dụng bởi mọi thành viên trong nhóm)"
-				+ "\n    {pn} rank default: reset về mặc định"
-				+ "\n—————"
-				+ "\n   {pn} [viewrole|view|show]: xem role của những lệnh đã chỉnh sửa",
-			en: "   {pn} <commandName> <new role>: set new role for command"
-				+ "\n   With:"
-				+ "\n   + <commandName>: command name"
-				+ "\n   + <new role>: new role of command with:"
-				+ "\n   + <new role> = 0: command can be used by all members in group"
-				+ "\n   + <new role> = 1: command can be used by admin only"
-				+ "\n   + <new role> = default: reset role of command to default"
-				+ "\n   Example:"
-				+ "\n    {pn} rank 1: (command rank can be used by admin only)"
-				+ "\n    {pn} rank 0: (command rank can be used by all members in group)"
-				+ "\n    {pn} rank default: reset to default"
-				+ "\n—————"
-				+ "\n   {pn} [viewrole|view|show]: view role of edited commands"
-		}
-	},
+  config: {
+    name: "setrole",
+    version: "2.0",
+    author: "NAFIJ_PRO( MODED )",
+    countDown: 5,
+    role: 1,
+    description: "Edit role permission of commands (for commands with role < 2)",
+    category: "info",
+    guide: {
+      en: `Usage:
+{pn} <commandName> <new role> - Change command permission
+{pn} <commandName> default - Reset command permission
+{pn} view - Show commands with custom roles
 
-	langs: {
-		vi: {
-			noEditedCommand: "✅ Hiện tại nhóm bạn không có lệnh nào được chỉnh sửa role",
-			editedCommand: "⚠️ Những lệnh trong nhóm bạn đã chỉnh sửa role:\n",
-			noPermission: "❗ Chỉ có quản trị viên mới có thể thực hiện lệnh này",
-			commandNotFound: "Không tìm thấy lệnh \"%1\"",
-			noChangeRole: "❗ Không thể thay đổi role của lệnh \"%1\"",
-			resetRole: "Đã reset role của lệnh \"%1\" về mặc định",
-			changedRole: "Đã thay đổi role của lệnh \"%1\" thành %2"
-		},
-		en: {
-			noEditedCommand: "✅ Your group has no edited command",
-			editedCommand: "⚠️ Your group has edited commands:\n",
-			noPermission: "❗ Only admin can use this command",
-			commandNotFound: "Command \"%1\" not found",
-			noChangeRole: "❗ Can't change role of command \"%1\"",
-			resetRole: "Reset role of command \"%1\" to default",
-			changedRole: "Changed role of command \"%1\" to %2"
-		}
-	},
+Roles:
+0 - All members can use
+1 - Admins only
+default - Reset to original config
 
-	onStart: async function ({ message, event, args, role, threadsData, getLang }) {
-		const { commands, aliases } = global.GoatBot;
-		const setRole = await threadsData.get(event.threadID, "data.setRole", {});
+Examples:
+{pn} rank 1      -> Only admins can use 'rank'
+{pn} rank 0      -> All members can use 'rank'
+{pn} rank default -> Reset 'rank' to default permission
+{pn} view        -> Show all commands with edited roles`
+    }
+  },
 
-		if (["view", "viewrole", "show"].includes(args[0])) {
-			if (!setRole || Object.keys(setRole).length === 0)
-				return message.reply(getLang("noEditedCommand"));
-			let msg = getLang("editedCommand");
-			for (const cmd in setRole) msg += `- ${cmd} => ${setRole[cmd]}\n`;
-			return message.reply(msg);
-		}
+  langs: {
+    en: {
+      noEditedCommand: "✅ No command roles have been edited in this group.",
+      editedCommand: "⚠️ Edited command roles in this group:\n",
+      noPermission: "❗ Only group admins can use this command.",
+      commandNotFound: "❌ Command \"%1\" not found.",
+      noChangeRole: "❗ Cannot change role of command \"%1\".",
+      resetRole: "✅ Reset role of command \"%1\" to default.",
+      changedRole: "✅ Changed role of command \"%1\" to %2."
+    }
+  },
 
-		let commandName = (args[0] || "").toLowerCase();
-		let newRole = args[1];
-		if (!commandName || (isNaN(newRole) && newRole !== "default"))
-			return message.SyntaxError();
-		if (role < 1)
-			return message.reply(getLang("noPermission"));
+  onStart: async function ({ message, event, args, role, threadsData, getLang }) {
+    const { commands, aliases } = global.GoatBot;
+    const { threadID } = event;
+    const setRole = await threadsData.get(threadID, "data.setRole", {});
 
-		const command = commands.get(commandName) || commands.get(aliases.get(commandName));
-		if (!command)
-			return message.reply(getLang("commandNotFound", commandName));
-		commandName = command.config.name;
-		if (command.config.role > 1)
-			return message.reply(getLang("noChangeRole", commandName));
+    // Show list of edited roles
+    if (["view", "viewrole", "show"].includes(args[0])) {
+      if (!setRole || Object.keys(setRole).length === 0)
+        return message.reply(getLang("noEditedCommand"));
+      let msg = getLang("editedCommand");
+      for (const cmd in setRole) msg += `- ${cmd} => ${setRole[cmd]}\n`;
+      return message.reply(msg);
+    }
 
-		let Default = false;
-		if (newRole === "default" || newRole == command.config.role) {
-			Default = true;
-			newRole = command.config.role;
-		}
-		else {
-			newRole = parseInt(newRole);
-		}
+    const commandNameInput = (args[0] || "").toLowerCase();
+    let newRole = args[1];
+    if (!commandNameInput || (isNaN(newRole) && newRole !== "default"))
+      return message.SyntaxError();
 
-		setRole[commandName] = newRole;
-		if (Default)
-			delete setRole[commandName];
-		await threadsData.set(event.threadID, setRole, "data.setRole");
-		message.reply("✅ " + (Default === true ? getLang("resetRole", commandName) : getLang("changedRole", commandName, newRole)));
-	}
+    if (role < 1)
+      return message.reply(getLang("noPermission"));
+
+    // Resolve command from name or alias
+    const command = commands.get(commandNameInput) || commands.get(aliases.get(commandNameInput));
+    if (!command)
+      return message.reply(getLang("commandNotFound", commandNameInput));
+
+    const commandName = command.config.name;
+
+    // Cannot override protected commands
+    if (command.config.role > 1)
+      return message.reply(getLang("noChangeRole", commandName));
+
+    const isDefault = newRole === "default" || Number(newRole) === command.config.role;
+    if (isDefault) {
+      delete setRole[commandName];
+      await threadsData.set(threadID, setRole, "data.setRole");
+      return message.reply(getLang("resetRole", commandName));
+    }
+
+    newRole = parseInt(newRole);
+    setRole[commandName] = newRole;
+    await threadsData.set(threadID, setRole, "data.setRole");
+    return message.reply(getLang("changedRole", commandName, newRole));
+  }
 };

@@ -1,19 +1,22 @@
 module.exports = {
 	config: {
 		name: "react",
-		version: "1.0",
-		author: "Mesbah Saxx",
+		version: "1.1",
+		author: "NAFIJ_PRO( MODED )",
 		countDown: 5,
 		role: 0,
 		description: {
-			en: "Manage reaction-based commands.",
+			en: "Manage reaction-based commands",
 		},
 		category: "handler",
 		guide: {
-			en: "     {pn} add <reaction> <command>"
-			  + "\n     {pn} delete <reaction|command>"
-			  + "\n     {pn} edit <reaction|command> <new value>"
-			  + "\n     {pn} list",
+			en:
+				"📌 Reaction Command Usage:\n" +
+				"▶️ {pn} add <reaction> <command> - Add a new reaction trigger\n" +
+				"❌ {pn} delete <reaction|command> - Delete a reaction or command trigger\n" +
+				"✏️ {pn} edit <reaction|command> <newValue> - Edit a trigger\n" +
+				"📄 {pn} list - Show all configured reaction commands\n" +
+				"ℹ️ {pn} usage - Show usage guide"
 		}
 	},
 
@@ -26,44 +29,55 @@ module.exports = {
 		}
 
 		switch (subCommand) {
+			case "usage": {
+				return message.reply(
+					`📘 Usage for "${commandName}":\n\n` +
+					`▶️ ${prefix}${commandName} add <reaction> <command>\n` +
+					`❌ ${prefix}${commandName} delete <reaction|command>\n` +
+					`✏️ ${prefix}${commandName} edit <reaction|command> <newValue>\n` +
+					`📄 ${prefix}${commandName} list`
+				);
+			}
+
 			case "list": {
-				if (global_data.length === 0) return message.reply("No reaction commands have been set.");
-				
-				let response = "📌 Reaction Commands:\n";
+				if (global_data.length === 0)
+					return message.reply("📭 No reaction commands have been set.");
+
+				let response = "📌 Reaction Commands:\n\n";
 				global_data.forEach(({ reaction, commandName }) => {
-					response += `🔹 Reaction: ${reaction}\n→ Command: ${commandName}\n`;
+					response += `🔹 Reaction: ${reaction} → Command: ${commandName}\n`;
 				});
 				return message.reply(response);
 			}
 
 			case "add": {
 				const reaction = args[1];
-				const commandName = args[2];
+				const commandTarget = args[2];
 
-				if (!reaction || !commandName) {
-					return message.reply(`Usage: ${prefix}${commandName} add <reaction> <command>`);
+				if (!reaction || !commandTarget) {
+					return message.reply(`⚠️ Usage: ${prefix}${commandName} add <reaction> <command>`);
 				}
 
-				if (global_data.some(item => item.reaction === reaction || item.commandName === commandName)) {
-					return message.reply(`Either the reaction "${reaction}" or command "${commandName}" is already assigned.`);
+				if (global_data.some(item => item.reaction === reaction || item.commandName === commandTarget)) {
+					return message.reply(`⚠️ Either the reaction "${reaction}" or command "${commandTarget}" is already assigned.`);
 				}
 
-				global_data.push({ reaction, commandName });
+				global_data.push({ reaction, commandName: commandTarget });
 				await saveData(global_data);
-				return message.reply(`✅ Reaction "${reaction}" now triggers the command "${commandName}".`);
+				return message.reply(`✅ Reaction "${reaction}" now triggers the command "${commandTarget}".`);
 			}
 
 			case "delete": {
 				const target = args[1];
 
 				if (!target) {
-					return message.reply(`Usage: ${prefix}${commandName} delete <reaction | command>`);
+					return message.reply(`⚠️ Usage: ${prefix}${commandName} delete <reaction|command>`);
 				}
 
 				const updatedData = global_data.filter(item => item.reaction !== target && item.commandName !== target);
 
 				if (updatedData.length === global_data.length) {
-					return message.reply(`No matching reaction or command found for "${target}".`);
+					return message.reply(`❌ No matching reaction or command found for "${target}".`);
 				}
 
 				await saveData(updatedData);
@@ -75,7 +89,11 @@ module.exports = {
 				const newValue = args[2];
 
 				if (!oldValue || !newValue) {
-					return message.reply(`Usage:\n${prefix}${commandName} edit <reaction> <newCommand>\n${prefix}${commandName} edit <command> <newReaction>`);
+					return message.reply(
+						`⚠️ Usage:\n` +
+						`${prefix}${commandName} edit <reaction> <newCommand>\n` +
+						`${prefix}${commandName} edit <command> <newReaction>`
+					);
 				}
 
 				let edited = false;
@@ -91,7 +109,7 @@ module.exports = {
 				});
 
 				if (!edited) {
-					return message.reply(`No matching reaction or command found for "${oldValue}".`);
+					return message.reply(`❌ No matching reaction or command found for "${oldValue}".`);
 				}
 
 				await saveData(global_data);

@@ -3,78 +3,66 @@ const fs = require("fs-extra");
 module.exports = {
 	config: {
 		name: "setlang",
-		version: "1.5",
-		author: "NTKhang",
+		version: "2.0",
+		author: "NAFIJ_PRO( MODED )",
 		countDown: 5,
 		role: 0,
-		description: {
-			vi: "Cài đặt ngôn ngữ của bot cho nhóm chat hiện tại hoặc tất cả các nhóm chat",
-			en: "Set default language of bot for current chat or all chats"
-		},
+		description: "Set default language of the bot for this chat or globally",
 		category: "owner",
 		guide: {
-			vi: "   {pn} <language code ISO 639-1"
-				+ "\n   Ví dụ:"
-				+ "\n    {pn} en"
-				+ "\n    {pn} vi",
-			en: "\n   {pn} <language code ISO 639-1"
-				+ "\n   Example:"
-				+ "\n    {pn} en"
-				+ "\n    {pn} vi"
+			en: `Usage:
+  {pn} <language code ISO 639-1> - Set language for current chat
+  {pn} <language code> -g       - Set language globally (admin only)
+Examples:
+  {pn} en
+  {pn} vi -g`
 		}
 	},
 
 	langs: {
-		vi: {
-			setLangForAll: "Đã cài đặt ngôn ngữ mặc định cho bot là: %1",
-			setLangForCurrent: "Đã cài đặt ngôn ngữ mặc định cho nhóm chat này là: %1",
-			noPermission: "Chỉ admin bot mới có thể sử dụng lệnh này",
-			langNotFound: "Không tìm thấy ngôn ngữ: %1"
-		},
 		en: {
-			setLangForAll: "Set default language of bot to: %1",
-			setLangForCurrent: "Set default language for current chat: %1",
-			noPermission: "Only bot admin can use this command",
-			langNotFound: "Can't find language: %1"
+			setLangForAll: "Set default language of the bot to: %1",
+			setLangForCurrent: "Set default language for this chat: %1",
+			noPermission: "Only bot admins can use this command.",
+			langNotFound: "Language not found: %1"
 		}
 	},
 
 	onStart: async function ({ message, args, getLang, threadsData, role, event }) {
-		if (!args[0])
-			return message.SyntaxError;
-		let langCode = args[0].toLowerCase();
-		if (langCode == "default" || langCode == "reset")
-			langCode = null;
+		if (!args[0]) return message.SyntaxError();
 
-		if (["-g", "-global", "all"].includes(args[1]?.toLowerCase())) {
-			if (role < 2)
-				return message.reply(getLang("noPermission"));
-			const pathLanguageFile = `${process.cwd()}/languages/${langCode}.lang`;
-			if (!fs.existsSync(pathLanguageFile))
-				return message.reply(getLang("langNotFound", langCode));
-			const readLanguage = fs.readFileSync(pathLanguageFile, "utf-8");
-			const languageData = readLanguage
+		let langCode = args[0].toLowerCase();
+		if (langCode === "default" || langCode === "reset") langCode = null;
+
+		const isGlobal = ["-g", "-global", "all"].includes(args[1]?.toLowerCase());
+
+		if (isGlobal) {
+			if (role < 2) return message.reply(getLang("noPermission"));
+
+			const pathLang = `${process.cwd()}/languages/${langCode}.lang`;
+			if (!fs.existsSync(pathLang)) return message.reply(getLang("langNotFound", langCode));
+
+			const languageData = fs.readFileSync(pathLang, "utf-8")
 				.split(/\r?\n|\r/)
-				.filter(line => line && !line.trim().startsWith("#") && !line.trim().startsWith("//") && line != "");
+				.filter(line => line && !line.trim().startsWith("#") && !line.trim().startsWith("//"));
 
 			global.language = {};
-			for (const sentence of languageData) {
-				const getSeparator = sentence.indexOf('=');
-				const itemKey = sentence.slice(0, getSeparator).trim();
-				const itemValue = sentence.slice(getSeparator + 1, sentence.length).trim();
-				const head = itemKey.slice(0, itemKey.indexOf('.'));
-				const key = itemKey.replace(head + '.', '');
-				const value = itemValue.replace(/\\n/gi, '\n');
-				if (!global.language[head])
-					global.language[head] = {};
-				global.language[head][key] = value;
+			for (const line of languageData) {
+				const sep = line.indexOf('=');
+				const keyFull = line.slice(0, sep).trim();
+				const value = line.slice(sep + 1).trim().replace(/\\n/g, '\n');
+				const [group, ...rest] = keyFull.split('.');
+				const key = rest.join('.');
+				if (!global.language[group]) global.language[group] = {};
+				global.language[group][key] = value;
 			}
+
 			global.GoatBot.config.language = langCode;
 			fs.writeFileSync(global.client.dirConfig, JSON.stringify(global.GoatBot.config, null, 2));
-			return message.reply(getLang("setLangForAll", langCode));
+			return message.reply(getLang("setLangForAll", langCode || "default"));
 		}
 
 		await threadsData.set(event.threadID, langCode, "data.lang");
-		return message.reply((global.GoatBot.commands.get("setlang")?.langs[langCode]?.setLangForCurrent || "Set default language for current chat: %1").replace("%1", langCode));
+		return message.reply(getLang("setLangForCurrent", langCode || "default"));
 	}
 };

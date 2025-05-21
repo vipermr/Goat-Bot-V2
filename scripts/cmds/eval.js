@@ -8,20 +8,15 @@ module.exports = {
 		countDown: 5,
 		role: 2,
 		description: {
-			vi: "Test code nhanh",
-			en: "Test code quickly"
+			en: "Quickly evaluate JavaScript code"
 		},
 		category: "owner",
 		guide: {
-			vi: "{pn} <đoạn code cần test>",
-			en: "{pn} <code to test>"
+			en: "{pn} <code>\n\nSubcommands Usage:\n- Use 'out(value)' to return output\n- You can use async/await\n- You can access all app variables like 'api', 'message', 'event', etc."
 		}
 	},
 
 	langs: {
-		vi: {
-			error: "❌ Đã có lỗi xảy ra:"
-		},
 		en: {
 			error: "❌ An error occurred:"
 		}
@@ -48,7 +43,7 @@ module.exports = {
 		}
 		function mapToObj(map) {
 			const obj = {};
-			map.forEach(function (v, k) {
+			map.forEach((v, k) => {
 				obj[k] = v;
 			});
 			return obj;

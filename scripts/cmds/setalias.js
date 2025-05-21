@@ -6,68 +6,41 @@ module.exports = {
 		countDown: 5,
 		role: 0,
 		description: {
-			vi: "Thêm tên gọi khác cho 1 lệnh bất kỳ trong nhóm của bạn",
-			en: "Add an alias for any command in your group"
+			en: "Add or remove command aliases for your group or system"
 		},
 		category: "config",
 		guide: {
-			vi: "  Lệnh dùng để thêm/xóa tên gọi khác cho 1 lệnh nào đó để tiện sử dụng trong nhóm chat của bạn"
-				+ "\n   {pn} add <tên gọi khác> <tên lệnh>: dùng để thêm tên gọi khác cho lệnh trong nhóm chat của bạn"
-				+ "\n   {pn} add <tên gọi khác> <tên lệnh> -g: dùng để thêm tên gọi khác cho lệnh trong toàn hệ thống (chỉ admin bot)"
-				+ "\nVí dụ:\n    {pn} add ctrk customrankcard"
-				+ "\n\n   {pn} [remove | rm] <tên gọi khác> <tên lệnh>: dùng để xóa tên gọi khác của lệnh trong nhóm chat của bạn"
-				+ "\n   {pn} [remove | rm] <tên gọi khác> <tên lệnh> -g: dùng để xóa tên gọi khác của lệnh trong toàn hệ thống (chỉ admin bot)"
-				+ "\nVí dụ:\n    {pn} rm ctrk customrankcard"
-				+ "\n\n   {pn} list: dùng để xem danh sách tên gọi khác của các lệnh trong nhóm bạn"
-				+ "\n   {pn} list -g: dùng để xem danh sách tên gọi khác của các lệnh trong nhóm bạn",
-			en: "  This command is used to add/remove alias for any command in your group"
-				+ "\n   {pn} add <alias> <command>: add an alias for the command in your group"
-				+ "\n   {pn} add <alias> <command> -g: add an alias for the command in the whole system (only bot admin)"
-				+ "\nExample:\n    {pn} add ctrk customrankcard"
-				+ "\n\n   {pn} [remove | rm] <alias> <command>: remove an alias for the command in your group"
-				+ "\n   {pn} [remove | rm] <alias> <command> -g: remove an alias for the command in the whole system (only bot admin)"
-				+ "\nExample:\n    {pn} rm ctrk customrankcard"
-				+ "\n\n   {pn} list: list all alias for commands in your group"
-				+ "\n   {pn} list -g: list all alias for commands in the whole system"
+			en:
+				"Use to add/remove alias for any command\n\n" +
+				"• {pn} add <alias> <command>: add alias in this group\n" +
+				"• {pn} add <alias> <command> -g: add alias globally (bot admin only)\n" +
+				"• Example: {pn} add hi help\n\n" +
+				"• {pn} rm <alias> <command>: remove alias in this group\n" +
+				"• {pn} rm <alias> <command> -g: remove alias globally (bot admin only)\n" +
+				"• Example: {pn} rm hi help\n\n" +
+				"• {pn} list: view aliases in this group\n" +
+				"• {pn} list -g: view global aliases"
 		}
 	},
 
 	langs: {
-		vi: {
-			commandNotExist: "❌ Lệnh \"%1\" không tồn tại",
-			aliasExist: "❌ Tên gọi \"%1\" đã tồn tại cho lệnh \"%2\" trong hệ thống",
-			addAliasSuccess: "✅ Đã thêm tên gọi \"%1\" cho lệnh \"%2\" trong hệ thống",
-			noPermissionAdd: "❌ Bạn không có quyền thêm tên gọi \"%1\" cho lệnh \"%2\" trong hệ thống",
-			aliasIsCommand: "❌ Tên gọi \"%1\" trùng với tên lệnh khác trong hệ thống bot",
-			aliasExistInGroup: "❌ Tên gọi \"%1\" đã tồn tại cho lệnh \"%2\" trong nhóm này",
-			addAliasToGroupSuccess: "✅ Đã thêm tên gọi \"%1\" cho lệnh \"%2\" trong nhóm chat của bạn",
-			aliasNotExist: "❌ Tên gọi \"%1\" không tồn tại trong lệnh \"%2\"",
-			removeAliasSuccess: "✅ Đã xóa tên gọi \"%1\" cho lệnh \"%2\" trong hệ thống",
-			noPermissionDelete: "❌ Bạn không có quyền xóa tên gọi \"%1\" cho lệnh \"%2\" trong hệ thống",
-			noAliasInGroup: "❌ Lệnh \"%1\" không có tên gọi khác nào trong nhóm của bạn",
-			removeAliasInGroupSuccess: "✅ Đã xóa tên gọi \"%1\" khỏi lệnh \"%2\" trong nhóm chat của bạn",
-			aliasList: "📜 Danh sách tên gọi khác của các lệnh trong hệ thống:\n%1",
-			noAliasInSystem: "⚠️ Hiện tại không có tên gọi nào trong hệ thống",
-			notExistAliasInGroup: "⚠️ Nhóm bạn chưa cài đặt tên gọi khác cho lệnh nào cả",
-			aliasListInGroup: "📜 Danh sách tên gọi khác của các lệnh trong nhóm chat của bạn:\n%1"
-		},
 		en: {
-			commandNotExist: "❌ Command \"%1\" does not exist",
-			aliasExist: "❌ Alias \"%1\" already exists for command \"%2\" in the system",
-			addAliasSuccess: "✅ Added alias \"%1\" for command \"%2\" in the system",
-			noPermissionAdd: "❌ You do not have permission to add alias \"%1\" for command \"%2\" in the system",
-			aliasIsCommand: "❌ Alias \"%1\" is the same as another command in the system",
-			aliasExistInGroup: "❌ Alias \"%1\" already exists for command \"%2\" in this group",
-			addAliasToGroupSuccess: "✅ Added alias \"%1\" for command \"%2\" in your group chat",
-			aliasNotExist: "❌ Alias \"%1\" does not exist for command \"%2\"",
-			removeAliasSuccess: "✅ Removed alias \"%1\" for command \"%2\" in the system",
-			noPermissionDelete: "❌ You do not have permission to remove alias \"%1\" for command \"%2\" in the system",
-			noAliasInGroup: "❌ Command \"%1\" does not have any other alias in your group",
-			removeAliasInGroupSuccess: "✅ Removed alias \"%1\" for command \"%2\" in your group chat",
-			aliasList: "📜 List of other aliases for commands in the system:\n%1",
-			noAliasInSystem: "⚠️ There are no aliases in the system",
-			notExistAliasInGroup: "⚠️ Your group has not set any other aliases for commands",
-			aliasListInGroup: "📜 List of other aliases for commands in your group chat:\n%1"
+			commandNotExist: "❌ Command \"%1\" does not exist.",
+			aliasExist: "⚠️ Alias \"%1\" already exists for command \"%2\" in the system.",
+			addAliasSuccess: "✅ Added alias \"%1\" for command \"%2\" in the system. 😀",
+			noPermissionAdd: "❌ You don't have permission to add alias \"%1\" for command \"%2\" globally.",
+			aliasIsCommand: "⚠️ Alias \"%1\" is already a command name.",
+			aliasExistInGroup: "⚠️ Alias \"%1\" already exists for command \"%2\" in this group.",
+			addAliasToGroupSuccess: "✅ Added alias \"%1\" for command \"%2\" in this group. 😀",
+			aliasNotExist: "❌ Alias \"%1\" does not exist for command \"%2\".",
+			removeAliasSuccess: "✅ Removed alias \"%1\" from command \"%2\" in the system. 😀",
+			noPermissionDelete: "❌ You don't have permission to remove alias \"%1\" for command \"%2\" globally.",
+			noAliasInGroup: "❌ Command \"%1\" has no aliases in this group.",
+			removeAliasInGroupSuccess: "✅ Removed alias \"%1\" from command \"%2\" in this group. 😀",
+			aliasList: "📜 Global aliases:\n%1",
+			noAliasInSystem: "⚠️ There are no global aliases.",
+			notExistAliasInGroup: "⚠️ No aliases are set for this group.",
+			aliasListInGroup: "📜 Group aliases:\n%1"
 		}
 	},
 
@@ -76,110 +49,101 @@ module.exports = {
 
 		switch (args[0]) {
 			case "add": {
-				if (!args[2])
-					return message.SyntaxError();
+				if (!args[2]) return message.SyntaxError();
 				const commandName = args[2].toLowerCase();
-				if (!global.GoatBot.commands.has(commandName))
-					return message.reply(getLang("commandNotExist", commandName));
 				const alias = args[1].toLowerCase();
 
-				if (args[3] == '-g') {
+				if (!global.GoatBot.commands.has(commandName))
+					return message.reply(getLang("commandNotExist", commandName));
+
+				if (args[3] === "-g") {
 					if (role > 1) {
-						const globalAliasesData = await globalData.get('setalias', 'data', []);
-						const globalAliasesExist = globalAliasesData.find(item => item.aliases.includes(alias));
-						if (globalAliasesExist)
-							return message.reply(getLang("aliasExist", alias, globalAliasesExist.commandName));
+						const globalAliasesData = await globalData.get("setalias", "data", []);
+						const globalAliasExists = globalAliasesData.find(item => item.aliases.includes(alias));
+						if (globalAliasExists)
+							return message.reply(getLang("aliasExist", alias, globalAliasExists.commandName));
 						if (global.GoatBot.aliases.has(alias))
 							return message.reply(getLang("aliasExist", alias, global.GoatBot.aliases.get(alias)));
-						const globalAliasesThisCommand = globalAliasesData.find(aliasData => aliasData.commandName == commandName);
-						if (globalAliasesThisCommand)
-							globalAliasesThisCommand.aliases.push(alias);
-						else
-							globalAliasesData.push({
-								commandName,
-								aliases: [alias]
-							});
-						await globalData.set('setalias', globalAliasesData, 'data');
+
+						const commandEntry = globalAliasesData.find(data => data.commandName === commandName);
+						if (commandEntry) commandEntry.aliases.push(alias);
+						else globalAliasesData.push({ commandName, aliases: [alias] });
+
+						await globalData.set("setalias", globalAliasesData, "data");
 						global.GoatBot.aliases.set(alias, commandName);
 						return message.reply(getLang("addAliasSuccess", alias, commandName));
-					}
-					else {
-						return message.reply(getLang("noPermissionAdd", alias, commandName));
-					}
+					} else return message.reply(getLang("noPermissionAdd", alias, commandName));
 				}
 
-				if (global.GoatBot.commands.get(alias))
+				if (global.GoatBot.commands.has(alias))
 					return message.reply(getLang("aliasIsCommand", alias));
 				if (global.GoatBot.aliases.has(alias))
 					return message.reply(getLang("aliasExist", alias, global.GoatBot.aliases.get(alias)));
-				for (const cmdName in aliasesData)
-					if (aliasesData[cmdName].includes(alias))
-						return message.reply(getLang("aliasExistInGroup", alias, cmdName));
+				for (const cmd in aliasesData)
+					if (aliasesData[cmd].includes(alias))
+						return message.reply(getLang("aliasExistInGroup", alias, cmd));
 
-				const oldAlias = aliasesData[commandName] || [];
-				oldAlias.push(alias);
-				aliasesData[commandName] = oldAlias;
+				const list = aliasesData[commandName] || [];
+				list.push(alias);
+				aliasesData[commandName] = list;
 				await threadsData.set(event.threadID, aliasesData, "data.aliases");
 				return message.reply(getLang("addAliasToGroupSuccess", alias, commandName));
 			}
+
 			case "remove":
 			case "rm": {
-				if (!args[2])
-					return message.SyntaxError();
+				if (!args[2]) return message.SyntaxError();
 				const commandName = args[2].toLowerCase();
 				const alias = args[1].toLowerCase();
 
 				if (!global.GoatBot.commands.has(commandName))
 					return message.reply(getLang("commandNotExist", commandName));
 
-				if (args[3] == '-g') {
+				if (args[3] === "-g") {
 					if (role > 1) {
-						const globalAliasesData = await globalData.get('setalias', 'data', []);
-						const globalAliasesThisCommand = globalAliasesData.find(aliasData => aliasData.commandName == commandName);
-						if (!globalAliasesThisCommand || !globalAliasesThisCommand.aliases.includes(alias))
+						const globalAliasesData = await globalData.get("setalias", "data", []);
+						const commandEntry = globalAliasesData.find(data => data.commandName === commandName);
+						if (!commandEntry || !commandEntry.aliases.includes(alias))
 							return message.reply(getLang("aliasNotExist", alias, commandName));
-						globalAliasesThisCommand.aliases.splice(globalAliasesThisCommand.aliases.indexOf(alias), 1);
-						await globalData.set('setalias', globalAliasesData, 'data');
+
+						commandEntry.aliases = commandEntry.aliases.filter(a => a !== alias);
+						await globalData.set("setalias", globalAliasesData, "data");
 						global.GoatBot.aliases.delete(alias);
 						return message.reply(getLang("removeAliasSuccess", alias, commandName));
-					}
-					else {
-						return message.reply(getLang("noPermissionDelete", alias, commandName));
-					}
+					} else return message.reply(getLang("noPermissionDelete", alias, commandName));
 				}
 
-				const oldAlias = aliasesData[commandName];
-				if (!oldAlias)
+				if (!aliasesData[commandName])
 					return message.reply(getLang("noAliasInGroup", commandName));
-				const index = oldAlias.indexOf(alias);
-				if (index === -1)
+				if (!aliasesData[commandName].includes(alias))
 					return message.reply(getLang("aliasNotExist", alias, commandName));
-				oldAlias.splice(index, 1);
+
+				aliasesData[commandName] = aliasesData[commandName].filter(a => a !== alias);
 				await threadsData.set(event.threadID, aliasesData, "data.aliases");
 				return message.reply(getLang("removeAliasInGroupSuccess", alias, commandName));
 			}
+
 			case "list": {
-				if (args[1] == '-g') {
-					const globalAliasesData = await globalData.get('setalias', 'data', []);
-					const globalAliases = globalAliasesData.map(aliasData => ({
-						commandName: aliasData.commandName,
-						aliases: aliasData.aliases.join(', ')
-					}));
-					return message.reply(
-						globalAliases.length ?
-							getLang("aliasList", globalAliases.map(alias => `• ${alias.commandName}: ${alias.aliases}`).join('\n')) :
-							getLang("noAliasInSystem")
-					);
+				if (args[1] === "-g") {
+					const globalAliasesData = await globalData.get("setalias", "data", []);
+					if (!globalAliasesData.length)
+						return message.reply(getLang("noAliasInSystem"));
+
+					const result = globalAliasesData.map(entry => `• ${entry.commandName}: ${entry.aliases.join(", ")}`).join("\n");
+					return message.reply(getLang("aliasList", result));
 				}
 
 				if (!Object.keys(aliasesData).length)
 					return message.reply(getLang("notExistAliasInGroup"));
-				const list = Object.keys(aliasesData).map(commandName => `\n• ${commandName}: ${aliasesData[commandName].join(", ")} `);
-				return message.reply(getLang("aliasListInGroup", list.join("\n")));
+
+				const result = Object.entries(aliasesData)
+					.map(([cmd, als]) => `• ${cmd}: ${als.join(", ")}`)
+					.join("\n");
+				return message.reply(getLang("aliasListInGroup", result));
 			}
-			default: {
+
+			default:
 				return message.SyntaxError();
-			}
 		}
 	}
 };

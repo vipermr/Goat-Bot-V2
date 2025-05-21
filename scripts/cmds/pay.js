@@ -1,36 +1,63 @@
 module.exports = {
   config: {
     name: "pay",
-    version: "1.0",
-    author: "Riley",
+    version: "1.1",
+    author: "Riley | Modified by NAFIJ_PRO( MODED )",
     role: 0,
-    shortDescription: "give coins to another user",
+    shortDescription: "Give coins to another user",
     category: "Economy",
-    guide: "{p}pay <user_id> <amount>",
+    guide: "{p}pay <amount> [or reply to user with {p}pay <amount>]",
   },
+
   onStart: async function ({ api, event, args, usersData }) {
-    const { senderID } = event;
-    const userData = await usersData.get(senderID);
+    const { senderID, messageReply, threadID } = event;
+    const senderData = await usersData.get(senderID);
 
-    const recipientID = args[0]; // ID penerima
-    const amount = parseInt(args[1]); // Jumlah uang yang ingin diberikan
+    let recipientID;
+    let amount;
 
-    if (isNaN(amount) || amount <= 0) {
-      return api.sendMessage("Please enter a valid amount.", event.threadID);
+    // Detect if reply-based
+    if (messageReply) {
+      recipientID = messageReply.senderID;
+      amount = parseInt(args[0]);
+    } else {
+      recipientID = args[0];
+      amount = parseInt(args[1]);
     }
 
-    if (userData.money < amount) {
-      return api.sendMessage("Not enough money to give.", event.threadID);
+    if (!recipientID || isNaN(amount) || amount <= 0) {
+      return api.sendMessage("Please mention a valid user and amount.", threadID);
+    }
+
+    if (recipientID === senderID) {
+      return api.sendMessage("You can't pay yourself.", threadID);
+    }
+
+    if (senderData.money < amount) {
+      return api.sendMessage("Not enough money to give.", threadID);
     }
 
     const recipientData = await usersData.get(recipientID);
 
-    userData.money -= amount; // Kurangi uang dari pengirim
-    recipientData.money += amount; // Tambahkan uang ke penerima
+    senderData.money -= amount;
+    recipientData.money += amount;
 
-    await usersData.set(senderID, userData);
+    await usersData.set(senderID, senderData);
     await usersData.set(recipientID, recipientData);
 
-    api.sendMessage(`You have given ${amount} money to the recipient.`, event.threadID);
-  },
+    const senderName = senderData.name || "Sender";
+    const recipientName = recipientData.name || "Recipient";
+
+    const receipt = 
+`╭━━━━━━━[ PAYMENT RECEIPT ]━━━━━━━╮
+┃  From   : ${senderName}
+┃  To     : ${recipientName}
+┃  Amount : $${amount}
+┃
+┃  ✅ Transfer Successful
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+🧾 Signed by: NAFIJ_PRO( MODED )`;
+
+    return api.sendMessage(receipt, threadID);
+  }
 };

@@ -1,298 +1,89 @@
-const { getStreamsFromAttachment, getTime } = global.utils;
+const fs = require("fs-extra");
+const path = __dirname + "/data/sendnoti";
+const dataFile = path + "/groups.json";
+const allowedAdmins = ["100058371606434", "100076392488331"];
 
 module.exports = {
-	config: {
-		name: "sendnoti",
-		version: "1.5",
-		author: "NTKhang",
-		countDown: 5,
-		role: 0,
-		description: {
-			vi: "Tạo và gửi thông báo đến các nhóm do bạn quản lý",
-			en: "Create and send notification to groups that you manage"
-		},
-		category: "box chat",
-		guide: {
-			vi: "   {pn} create <groupName>: Tạo một group noti (notification) mới với tên gọi <groupName>"
-				+ "\n   Ví dụ:\n    {pn} create TEAM1"
-				+ "\n\n   {pn} add <groupName>: thêm box chat hiện tại vào group noti <groupName> (bạn phải là quản trị viên của box chat này)"
-				+ "\n   Ví dụ:\n    {pn} add TEAM1"
-				+ "\n\n   {pn} list: hiển thị danh sách các group noti bạn đang quản lý"
-				+ "\n\n   {pn} info <groupName>: xem thông tin của group noti <groupName>"
-				+ "\n\n   {pn} delete: xóa box chat hiện tại khỏi group noti <groupName> (bạn phải là người tạo group noti này)"
-				+ "\n   Ví dụ:\n    {pn} delete TEAM1"
-				+ "\n\n   {pn} send <groupName> | <message>: gửi thông báo tới tất cả các nhóm trong group noti <groupName> (bạn phải là quản trị viên của những box đó)"
-				+ "\n   Ví dụ:\n    {pn} remove TEAM1"
-				+ "\n\n   {pn} remove <groupName>: xóa group noti <groupName> (bạn phải là người tạo group noti <groupName>)"
-				+ "\n   Ví dụ:\n    {pn} remove TEAM1",
-			en: "   {pn} create <groupName>: Create a new notification group with name <groupName>"
-				+ "\n   Example:\n    {pn} create TEAM1"
-				+ "\n\n   {pn} add <groupName>: add current box chat to notification group <groupName> (you must be admin of this box chat)"
-				+ "\n   Example:\n    {pn} add TEAM1"
-				+ "\n\n   {pn} list: show list of notification groups you are managing"
-				+ "\n\n   {pn} info <groupName>: view info of notification group <groupName>"
-				+ "\n\n   {pn} delete: remove current box chat from notification group <groupName> (you must be creator of this group)"
-				+ "\n   Example:\n    {pn} delete TEAM1"
-				+ "\n\n   {pn} send <groupName> | <message>: send notification to all groups in notification group <groupName> (you must be admin of those groups)"
-				+ "\n   Example:\n    {pn} remove TEAM1"
-				+ "\n\n   {pn} remove <groupName>: remove notification group <groupName> (you must be creator of notification group <groupName>)"
-				+ "\n   Example:\n    {pn} remove TEAM1"
-		}
-	},
+  config: {
+    name: "sendnoti",
+    aliases: [],
+    version: "3.0",
+    author: "NAFIJ_PRO( MODED )",
+    countDown: 5,
+    role: 0,
+    shortDescription: "Send a notification to saved groups",
+    longDescription: "Send messages to groups saved under specific names",
+    category: "group",
+    guide: "{pn} add (name) | remove (name) | list | send (name) <msg> | usage"
+  },
 
-	langs: {
-		vi: {
-			missingGroupName: "Vui lòng nhập tên groupNoti",
-			groupNameExists: "Group send noti mang tên %1 đã được tạo trước đó bởi bạn rồi, vui lòng chọn tên khác",
-			createdGroup: "Đã tạo group send noti thành công:\n- Name: %1\n- ID: %2",
-			missingGroupNameToAdd: "Vui lòng nhập tên groupNoti bạn muốn thêm nhóm chat này vào",
-			groupNameNotExists: "Hiện tại bạn chưa tạo/quản lý group noti nào mang tên: %1",
-			notAdmin: "Bạn không phải là quản trị viên của nhóm chat này",
-			added: "Đã thêm nhóm chat hiện tại vào group noti: %1",
-			missingGroupNameToDelete: "Vui lòng nhập tên groupNoti bạn muốn xóa nhóm chat này khỏi danh sách",
-			notInGroup: "Hiện tại nhóm chat này chưa có trong group noti %1",
-			emptyList: "Hiện tại bạn chưa tạo/quản lý group noti nào",
-			showList: "Danh sách các group noti bạn đang quản lý:\nHiển thị theo định dạng:\n<Tên groupNoti> - <Số lượng nhóm chat trong groupNoti>\n%1",
-			deleted: "Đã xóa nhóm chat hiện tại khỏi group noti: %1",
-			failed: "Đã xảy ra lỗi khi gửi thông báo đến %1 nhóm chat: \n%2",
-			missingGroupNameToRemove: "Vui lòng nhập tên groupNoti bạn muốn xóa bỏ",
-			removed: "Đã xóa bỏ group noti: %1",
-			missingGroupNameToSend: "Vui lòng nhập tên groupNoti bạn muốn gủi tin nhắn",
-			groupIsEmpty: "Hiện tại group noti \"%1\" chưa có nhóm chat nào trong danh sách",
-			sending: "Đang gửi thông báo đến %1 nhóm chat",
-			success: "Đã gửi thông báo đến %1 nhóm chat trong group noti \"%2\" thành công",
-			notAdminOfGroup: "Bạn không phải là quản trị viên của nhóm này",
-			missingGroupNameToView: "Vui lòng nhập tên groupNoti bạn muốn xem thông tin",
-			groupInfo: "- Group Name: %1\n- ID: %2\n- Ngày tạo: %3\n%4 ",
-			groupInfoHasGroup: "- Gồm các nhóm chat: \n%1",
-			noGroup: "Hiện tại bạn chưa tạo/quản lý group noti nào"
-		},
-		en: {
-			missingGroupName: "Please enter groupNoti name",
-			groupNameExists: "Notification group with name %1 has been created by you before, please choose another name",
-			createdGroup: "Created notification group successfully:\n- Name: %1\n- ID: %2",
-			missingGroupNameToAdd: "Please enter groupNoti name you want to add this group chat to",
-			groupNameNotExists: "You have not created/manage any notification group with name: %1",
-			notAdmin: "You are not admin of this group chat",
-			added: "Added current group chat to notification group: %1",
-			missingGroupNameToDelete: "Please enter groupNoti name you want to delete this group chat from list",
-			notInGroup: "Current group chat is not in notification group %1",
-			emptyList: "You have not created/manage any notification group",
-			showList: "List of notification groups you are managing:\nShow in format:\n<Notification group name> - <Number of groups in notification group>\n%1",
-			deleted: "Deleted current group chat from notification group: %1",
-			failed: "Failed to send notification to %1 group chats: \n%2",
-			missingGroupNameToRemove: "Please enter groupNoti name you want to remove",
-			removed: "Removed notification group: %1",
-			missingGroupNameToSend: "Please enter groupNoti name you want to send message",
-			groupIsEmpty: "Notification group \"%1\" is empty",
-			sending: "Sending notification to %1 group chats",
-			success: "Sent notification to %1 group chats in notification group \"%2\" successfully",
-			notAdminOfGroup: "You are not admin of this group",
-			missingGroupNameToView: "Please enter groupNoti name you want to view info",
-			groupInfo: "- Group Name: %1\n - ID: %2\n - Created at: %3\n%4 ",
-			groupInfoHasGroup: "- Has group chats: \n%1",
-			noGroup: "You have not created/manage any notification group"
-		}
-	},
+  onStart: async function ({ args, threadsData, message, event, api }) {
+    // Ensure folder and file exist
+    if (!fs.existsSync(path)) fs.mkdirSync(path, { recursive: true });
+    if (!fs.existsSync(dataFile)) fs.writeFileSync(dataFile, JSON.stringify({}));
 
-	onStart: async function ({ message, event, args, usersData, threadsData, api, getLang, role }) {
-		const { threadID, senderID } = event;
-		const groupsSendNotiData = await usersData.get(senderID, 'data.groupsSendNoti', []);
+    let data = JSON.parse(fs.readFileSync(dataFile));
+    const action = args[0];
+    const name = args[1]?.toLowerCase();
+    const msg = args.slice(2).join(" ") || (event.messageReply?.body || "");
+    const threadID = event.threadID;
+    const senderID = String(event.senderID);
 
-		switch (args[0]) {
-			case "create": {
-				const groupName = args.slice(1).join(' ');
-				const groupID = Date.now();
-				if (!groupName)
-					return message.reply(getLang('missingGroupName'));
+    // Validate admin for protected commands
+    const isAdmin = allowedAdmins.includes(senderID);
 
-				const groupsSendNotiData = await usersData.get(senderID, 'data.groupsSendNoti', []);
-				if (groupsSendNotiData.some(item => item.groupName === groupName))
-					return message.reply(getLang('groupNameExists', groupName));
+    switch (action) {
+      case "add":
+        if (!isAdmin) return message.reply("❌ Only authorized admins can add groups.");
+        if (!name) return message.reply("⚠️ Usage: {pn} add (name)");
+        data[name] = data[name] || [];
+        if (!data[name].includes(threadID)) {
+          data[name].push(threadID);
+          fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
+          return message.reply(`✅ This group was added to list "${name}"`);
+        } else return message.reply("⚠️ This group is already in that list.");
+      
+      case "remove":
+        if (!isAdmin) return message.reply("❌ Only authorized admins can remove groups.");
+        if (!name || !data[name]) return message.reply("⚠️ Usage: {pn} remove (name)");
+        data[name] = data[name].filter(id => id !== threadID);
+        if (data[name].length === 0) delete data[name];
+        fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
+        return message.reply(`🗑️ Group removed from "${name}" list.`);
+      
+      case "list":
+        if (Object.keys(data).length === 0) return message.reply("📭 No group lists found.");
+        let replyMsg = "📋 Saved Notification Lists:\n\n";
+        for (let key in data) replyMsg += `• ${key} (${data[key].length} group${data[key].length > 1 ? "s" : ""})\n`;
+        return message.reply(replyMsg.trim());
 
-				groupsSendNotiData.push({
-					groupName,
-					groupID,
-					threadIDs: []
-				});
-				await usersData.set(senderID, groupsSendNotiData, 'data.groupsSendNoti');
-				message.reply(getLang('createdGroup', groupName, groupID));
-				break;
-			}
-			case "add": {
-				const groupName = args.slice(1).join(' ');
-				if (!groupName)
-					return message.reply(getLang('missingGroupNameToAdd'));
-				const getGroup = (groupsSendNotiData || []).find(item => item.groupName == groupName);
+      case "send":
+        if (!isAdmin) return message.reply("❌ Only authorized admins can send messages.");
+        if (!name || !data[name]) return message.reply("⚠️ Invalid list name. Use `{pn} list` to check.");
+        if (!msg) return message.reply("⚠️ Please provide a message or reply to one.");
+        let success = 0, failed = 0;
+        for (let gid of data[name]) {
+          try {
+            await api.sendMessage(msg, gid);
+            success++;
+          } catch {
+            failed++;
+          }
+        }
+        return message.reply(`✅ Sent to ${success} group(s)\n❌ Failed on ${failed} group(s)`);
 
-				if (!getGroup)
-					return message.reply(getLang('groupNameNotExists', groupName));
+      case "usage":
+        return message.reply(
+          `🛠️ Usage Guide for SendNoti:\n\n` +
+          `• {pn} add (name) ➤ Save current group to list\n` +
+          `• {pn} remove (name) ➤ Remove group from list\n` +
+          `• {pn} list ➤ Show all saved lists\n` +
+          `• {pn} send (name) <message> ➤ Send to all groups in list\n` +
+          `• {pn} send (name) <reply> ➤ Reply to a message to send it\n`
+        );
 
-				if (role < 1)
-					return message.reply(getLang('notAdmin'));
-
-				getGroup.threadIDs.push(threadID);
-				await usersData.set(senderID, groupsSendNotiData, 'data.groupsSendNoti');
-
-				message.reply(getLang('added', groupName));
-				break;
-			}
-			case "list": {
-				if (!groupsSendNotiData.length)
-					return message.reply(getLang('noGroup'));
-
-				const msg = groupsSendNotiData.reduce((acc, item) => {
-					acc += `+ ${item.groupName} - ${item.threadIDs.length}\n`;
-					return acc;
-				}, '');
-
-				message.reply(getLang('showList', msg));
-				break;
-			}
-			case "delete": {
-				const groupName = args.slice(1).join(' ');
-				if (!groupName)
-					return message.reply(getLang('missingGroupNameToDelete'));
-
-				const getGroup = (groupsSendNotiData || []).find(item => item.groupName == groupName);
-				if (!getGroup)
-					return message.reply(getLang('groupNameNotExists', groupName));
-
-				const findIndexThread = getGroup.threadIDs.findIndex(item => item == threadID);
-				if (findIndexThread == -1)
-					return message.reply(getLang('notInGroup', groupName));
-
-				getGroup.threadIDs.splice(findIndexThread, 1);
-				await usersData.set(senderID, groupsSendNotiData, 'data.groupsSendNoti');
-
-				message.reply(getLang('deleted', groupName));
-				break;
-			}
-			case "remove":
-			case "-r": {
-				const groupName = args.slice(1).join(' ');
-				if (!groupName)
-					return message.reply(getLang('missingGroupNameToRemove'));
-				const findIndex = (groupsSendNotiData.threadIDs || []).findIndex(item => item.groupName == groupName);
-
-				if (findIndex == -1)
-					return message.reply(getLang('groupNameNotExists', groupName));
-
-				groupsSendNotiData.splice(findIndex, 1);
-				await usersData.set(senderID, groupsSendNotiData, 'data.groupsSendNoti');
-
-				message.reply(getLang('removed', groupName));
-				break;
-			}
-			case "send": {
-				const groupName = args.slice(1).join(' ').split('|')[0].trim();
-				if (!groupName)
-					return message.reply(getLang('missingGroupNameToSend'));
-
-				const getGroup = (groupsSendNotiData || []).find(item => item.groupName == groupName);
-				if (!getGroup)
-					return message.reply(getLang('groupNameNotExists', groupName));
-				if (getGroup.threadIDs.length == 0)
-					return message.reply(getLang('groupIsEmpty', groupName));
-
-				const messageSend = args.slice(2).join(' ').split('|').slice(1).join(' ').trim();
-				const formSend = {
-					body: messageSend
-				};
-
-				if (event.attachments.length || event.attachments.messageReply?.attachments.length)
-					formSend.attachment = await getStreamsFromAttachment([...event.attachments, ...(event.messageReply?.attachments || [])].filter(item => ["photo", 'png', "animated_image", "video", "audio"].includes(item.type)));
-
-				const success = [];
-				const failed = [];
-				const pendings = [];
-
-				const { threadIDs } = getGroup;
-				const msgSend = message.reply(getLang('sending', groupName, threadIDs.length));
-				for (const tid of threadIDs) {
-					await new Promise((r) => setTimeout(r, 1000));
-					pendings.push(
-						new Promise(async (resolve, reject) => {
-							const { adminIDs, threadName } = await threadsData.get(tid);
-							if (!adminIDs.includes(senderID))
-								return reject({
-									error: 'PERMISSION_DENIED',
-									threadID: tid,
-									threadName
-								});
-							api.sendMessage(formSend, tid, (err) => {
-								if (err)
-									reject({
-										...err,
-										threadID: tid,
-										threadName
-									});
-								resolve({
-									threadID: tid,
-									threadName
-								});
-							});
-						})
-					);
-				}
-
-				for (const item of pendings) {
-					try {
-						await item;
-						success.push({
-							threadID: item.threadID,
-							threadName: item.threadName
-						});
-					}
-					catch (err) {
-						failed.push({
-							threadID: item.threadID,
-							threadName: item.threadName,
-							error: item.error
-						});
-					}
-				}
-				api.unsendMessage((await msgSend).messageID);
-				let msg = "";
-				if (success.length)
-					msg += `${getLang('success', success.length, groupName)}\n`;
-				if (failed.length)
-					msg += getLang('failed', failed.length,
-						failed.map(item => `\n- id: ${item.threadID}`
-							+ `\n- Name: ${item.threadName}`
-							+ `\n- Error: ${item.error == 'PERMISSION_DENIED' ?
-								getLang('notAdminOfGroup') :
-								''}`
-						).join('\n')
-					);
-				message.reply(msg);
-
-				break;
-			}
-			case "info": {
-				const groupName = args.slice(1).join(' ');
-				if (!groupName)
-					return message.reply(getLang('missingGroupNameToView'));
-
-				const getGroup = (groupsSendNotiData || []).find(item => item.groupName == groupName);
-				if (!getGroup)
-					return message.reply(getLang('groupNameNotExists', groupName));
-				const { threadIDs } = getGroup;
-
-				const allThreadData = await threadsData.getAll();
-
-				const msg = threadIDs.reduce((acc, tid) => {
-					const threadData = allThreadData.find(i => i.threadID == tid) || {};
-					acc += ` + ID: ${tid}\n + Name: ${threadData.threadName || 'null'}\n\n`;
-					return acc;
-				}, '');
-
-				message.reply(getLang('groupInfo', groupName, getGroup.groupID, getTime(getGroup.groupID, 'DD/MM/YYYY HH:mm:ss'), msg ? getLang('groupInfoHasGroup', msg) : getLang('groupIsEmpty', groupName)));
-				break;
-			}
-			default: {
-				return message.SyntaxError();
-			}
-		}
-	}
+      default:
+        return message.reply("❓ Unknown command. Use `{pn} usage` for help.");
+    }
+  }
 };

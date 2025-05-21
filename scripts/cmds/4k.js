@@ -1,43 +1,43 @@
 const axios = require("axios");
 
-module.exports = {
-  config: {
-    name: "4k",
-    aliases: ["upscale"],
-    version: "1.1",
-    role: 0,
-    author: "Fahim_Noob",
-    countDown: 5,
-    longDescription: "Upscale images to 4K resolution.",
-    category: "image",
-    guide: {
-      en: "${pn} reply to an image to upscale it to 4K resolution."
-    }
-  },
-  onStart: async function ({ message, event }) {
+const baseApiUrl = async () => {
+  const base = await axios.get(
+    `https://raw.githubusercontent.com/Blankid018/D1PT0/main/baseApiUrl.json`
+  );
+  return base.data.mostakim;
+};
+module.exports.config = {
+  name: "4k",
+  aliases: ["4k", "remini"],
+  category: "enhanced",
+  author: "Romim"
+};
+
+module.exports.onStart = async ({ api, event, args }) => {
+  try {
+
     if (!event.messageReply || !event.messageReply.attachments || !event.messageReply.attachments[0]) {
-      return message.reply("Please reply to an image to upscale it.");
+      return api.sendMessage("𝐏𝐥𝐞𝐚𝐬𝐞 𝐫𝐞𝐩𝐥𝐲 𝐭𝐨 𝐚𝐧 𝐢𝐦𝐚𝐠𝐞 𝐰𝐢𝐭𝐡 𝐭𝐡𝐞 𝐜𝐨𝐦𝐦𝐚𝐧𝐝.", event.threadID, event.messageID);
     }
-    const imgurl = encodeURIComponent(event.messageReply.attachments[0].url);
-    const noobs = 'xyz';
-    const upscaleUrl = `https://smfahim.${noobs}/4k?url=${imgurl}`;
-    
-    message.reply("𝙿𝚕𝚜 𝚆8 𝙱𝚘𝚜𝚜😉.", async (err, info) => {
-      try {
-        const { data: { image } } = await axios.get(upscaleUrl);
-        const attachment = await global.utils.getStreamFromURL(image, "upscaled-image.png");
 
-        message.reply({
-          body: "✅| 𝙷𝚎𝚛𝚎 𝚒𝚜 𝙱𝚘𝚜𝚜 4𝚔 𝚞𝚙𝚜𝚌𝚊𝚕𝚎𝚍 𝚒𝚖𝚐:",
-          attachment: attachment
-        });
-        let processingMsgID = info.messageID;
-        message.unsend(processingMsgID);
 
-      } catch (error) {
-        console.error(error);
-        message.reply("❌| There was an error upscaling your image.");
-      }
+    const Romim = event.messageReply?.attachments[0]?.url;
+
+
+    const apiUrl = (`${await baseApiUrl()}/remini?input=${encodeURIComponent(Romim)}`);
+ 
+
+    const imageStream = await axios.get(apiUrl,{
+      responseType: 'stream'
     });
+
+
+    api.sendMessage({
+      body: "𝐇𝐞𝐫𝐞 𝐢𝐬 𝐲𝐨𝐮𝐫 𝐞𝐧𝐡𝐚𝐧𝐜𝐞𝐝 𝐩𝐡𝐨𝐭𝐨",
+      attachment: imageStream.data
+    }, event.threadID, event.messageID);
+
+  } catch (e) {
+    api.sendMessage(`Error: ${e.message}`, event.threadID, event.messageID);
   }
 };

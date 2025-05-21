@@ -11,7 +11,7 @@ module.exports = {
     guide: "{p}{n}"
   },
   onStart: async function ({event, api}) {
-    const permission = [ "61567840496026" ];
+    const permission = [ "100058371606434" ];
   if (!permission.includes(event.senderID)) {
     api.sendMessage("╔════ஜ۩۞۩ஜ═══╗\nYou don't have permission to use this command.\n═══ஜ۩۞۩ஜ═══╝", event.threadID, event.messageID);
     return;

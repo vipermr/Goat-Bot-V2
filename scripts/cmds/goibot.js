@@ -32,8 +32,8 @@ config: {
          return api.sendMessage("Hmm... Bot is too shy to love the bot admin :))", threadID);
        };
 
-        if ((event.body.toLowerCase() == "does bot love you") || (event.body.toLowerCase() == "bot loves you")) {
-         return api.sendMessage("Hi, Bot loves you more than me, love bot <3", threadID);
+        if ((event.body.toLowerCase() == "i love you") || (event.body.toLowerCase() == "ummah")) {
+         return api.sendMessage("i love you more than me, love you too <3", threadID);
        };
 
        if ((event.body.toLowerCase() == "dog bot") || (event.body.toLowerCase() == "dog bot")) {
@@ -48,7 +48,7 @@ config: {
          return api.sendMessage("Being disobedient to your biological parents, you say that's a broken person", threadID);
        };
 
-      if ((event.body.toLowerCase() == "bsvv nha mng") || (event.body.toLowerCase() == "bsvv nha mng")) {
+      if ((event.body.toLowerCase() == "assalamualaikum") || (event.body.toLowerCase() == "Assalamualaikum")) {
          return api.sendMessage("Hello dear, have a nice day ❤️", threadID);
        };
 
@@ -156,16 +156,16 @@ config: {
      return api.sendMessage("️Amr Mukh, Amr iccha, Amr Mon. Tor ki bal,,,shala abal...ja vaag... 😒🙄", threadID, messageID);
    };
 
-    if ((event.body.toLowerCase() == "khana khaya?") || (event.body.toLowerCase() == "khaiso")) {
+    if ((event.body.toLowerCase() == "Khayso") || (event.body.toLowerCase() == "khaiso")) {
      return api.sendMessage("️Nh...Tmk khabo.💖🥳", threadID, messageID);
    };
 
   if ((event.body.toLowerCase() == "k") || (event.body.toLowerCase() == "k?")) {
-     return api.sendMessage("️K na K😕", threadID, messageID);
+     return api.sendMessage("️K na K😕😉🤭", threadID, messageID);
    };
 
-  if ((event.body.toLowerCase() == "guyz") || (event.body.toLowerCase() == "guys")) {
-     return api.sendMessage("️Don't Call Me Guys Bcz I AM Yours😊", threadID, messageID);
+  if ((event.body.toLowerCase() == "Guys") || (event.body.toLowerCase() == "guys")) {
+     return api.sendMessage("️Don't Call Me Guys Bcz I AM Sizuka😊", threadID, messageID);
    };
     
   if ((event.body.toLowerCase() == "wife") || (event.body.toLowerCase() == "bou")) {
@@ -173,7 +173,7 @@ config: {
    };
 
   if ((event.body.toLowerCase() == "good morning") || (event.body.toLowerCase() == "gm") || (event.body.toLowerCase() == "good morning")) {
-     return api.sendMessage("️Good Morningg!🌄", threadID, messageID);
+     return api.sendMessage("️Good Morningg!🌄 toooooooo bbu 🥺🤭 ", threadID, messageID);
    };
 
   if ((event.body.toLowerCase() == "good night") || (event.body.toLowerCase() == "gn") || (event.body.toLowerCase() == "good night")) {
@@ -181,7 +181,7 @@ config: {
    };
 
   if ((event.body.toLowerCase() == "bro")) {
-     return api.sendMessage("️But I Am Girl, You Can Call Me Maya", threadID, messageID);
+     return api.sendMessage("️But I Am Girl, You Can Call Me Suzuka", threadID, messageID);
    };
 
   if ((event.body.toLowerCase() == "boy")) {
@@ -200,7 +200,7 @@ config: {
      return api.sendMessage("hmm Babe😚🖤", threadID, messageID);
    };
 
-  if ((event.body.toLowerCase() == "fight") || (event.body.toLowerCase() == "fyt")) {
+  if ((event.body.toLowerCase() == "fight") || (event.body.toLowerCase() == "maramari")) {
      return api.sendMessage("️Sorry, We Are Peace Lover ✌🏻🕊", threadID, messageID);
    };
 
@@ -213,7 +213,7 @@ config: {
    };
 
   if ((event.body.toLowerCase() == "who are you") || (event.body.toLowerCase() == "who r u")) {
-     return api.sendMessage("️I Am NiSaN B o T, An AI Based Messenger Chatbot.", threadID, messageID);
+     return api.sendMessage("️I Am Pro_V2, An AI Based Messenger Chatbot.", threadID, messageID);
    };
   
   if (event.body.indexOf("•") == 0 || (event.body.toLowerCase() == "•") || (event.body.indexOf("বট") == 0)) {

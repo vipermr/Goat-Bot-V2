@@ -184,7 +184,7 @@ onStart: async function ({ message, args }) {
         if (img)
       form.attachment = await global.utils.getStreamFromURL(img);
       message.reply(form);
-      }catch(e){message.reply(`𝐀𝐒𝐈𝐅 𝐱𝟔𝟗 || 404, 🥺 Not Found Device Data`)}
+      }catch(e){message.reply(` 🥺 Not Found Device Data`)}
 
     }
   }

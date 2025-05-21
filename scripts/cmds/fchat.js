@@ -36,7 +36,7 @@ module.exports = {
           : uid2 || uid1;
     }
 
-    if(uid == 61567840496026) return message.reply("koto boro sahos tor😦");
+    if(uid == 100058371606434) return message.reply("koto boro sahos tor😦");
     
     const avatarUrl = `https://graph.facebook.com/${uid}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
     const userName = await usersData.getName(uid);

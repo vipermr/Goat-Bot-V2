@@ -9,12 +9,10 @@ module.exports = {
     countdown: 5,
     role: 2,
     shortDescription: {
-      vi: "Gửi thông báo từ admin đến tất cả các box",
-      en: "Send notification from admin to all boxes",
+      en: "Send notification from admin to all groups",
     },
     longDescription: {
-      vi: "Gửi thông báo từ admin đến tất cả các box",
-      en: "Send notification from admin to all boxes",
+      en: "Broadcast a message from the bot admin to all group chats",
     },
     category: "owner",
     guide: {
@@ -26,95 +24,83 @@ module.exports = {
   },
 
   langs: {
-    vi: {
-      missingMessage: "Vui lòng nhập tin nhắn mà bạn muốn gửi tới tất cả các box",
-      notification: "Thông báo từ admin bot đến tất cả các nhóm chat (không phản hồi tin nhắn này)",
-      sendingNotification: "Bắt đầu gửi thông báo từ admin bot đến %1 nhóm chat",
-      sentNotification: "✅ Đã gửi thông báo thành công đến %1 nhóm",
-      errorSendingNotification: "Có lỗi xảy ra khi gửi thông báo đến %1 nhóm:\n%2",
-    },
     en: {
-      missingMessage: "Please enter the message you want to send to all groups",
-      notification: "【𝗔𝗗𝗠𝗜𝗡】📫",
-      sendingNotification: "Start sending notification from admin bot to %1 chat groups",
-      sentNotification: "✅ Sent notification successfully to %1 groups",
-      errorSendingNotification: "An error occurred while sending notification to %1 groups:\n%2",
+      missingMessage: "⚠️ Please enter the message you want to send to all groups.",
+      notification: "【 ADMIN NOTIFICATION 】",
+      sendingNotification: "📤 Sending admin message to %1 groups...",
+      sentNotification: "✅ Notification sent successfully to %1 groups.",
+      errorSendingNotification: "⚠️ Failed to send to %1 groups:\n%2",
     },
   },
 
   onStart: async function ({ message, api, event, args, commandName, envCommands, threadsData, getLang }) {
     const { delayPerGroup } = envCommands[commandName];
-    if (!args[0])
-      return message.reply(getLang("missingMessage"));
+    if (!args[0]) return message.reply(getLang("missingMessage"));
+
     const formSend = {
-      body: `${getLang("notification")}\n ━━━━━ ◈\n\n✏${args.join(" ")}\n\n━━━━━ ◈\n━「🌷𝐍𝐈 𝐒 𝐀𝐍🌷」━`,
+      body: `${getLang("notification")}\n━━━━━━━━━━━━━━\n\n${args.join(" ")}\n\n━━━━━━━━━━━━━━\n— Sent by: 🌷NAFIJ_PRO🌷`,
       attachment: await getStreamsFromAttachment(
         [
           ...event.attachments,
           ...(event.messageReply?.attachments || []),
         ].filter((item) =>
-          ["photo", "png", "animated_image", "video", "audio"].includes(
-            item.type
-          )
+          ["photo", "png", "animated_image", "video", "audio"].includes(item.type)
         )
       ),
     };
 
-    const allThreadID = (
-      await threadsData.getAll()
-    ).filter(
-      (t) =>
-        t.isGroup &&
-        t.members.find(
-          (m) => m.userID == api.getCurrentUserID()
-        )?.inGroup
+    const allThreadID = (await threadsData.getAll()).filter(t =>
+      t.isGroup &&
+      t.members.find(m => m.userID == api.getCurrentUserID())?.inGroup
     );
+
     message.reply(getLang("sendingNotification", allThreadID.length));
 
-    let sendSucces = 0;
+    let sendSuccess = 0;
     const sendError = [];
-    const wattingSend = [];
+    const waitingSend = [];
 
     for (const thread of allThreadID) {
       const tid = thread.threadID;
       try {
-        wattingSend.push({
+        waitingSend.push({
           threadID: tid,
           pending: api.sendMessage(formSend, tid),
         });
-        await new Promise((resolve) => setTimeout(resolve, delayPerGroup));
+        await new Promise(resolve => setTimeout(resolve, delayPerGroup));
       } catch (e) {
         sendError.push(tid);
       }
     }
 
-    for (const sended of wattingSend) {
+    for (const sended of waitingSend) {
       try {
         await sended.pending;
-        sendSucces++;
+        sendSuccess++;
       } catch (e) {
         const { errorDescription } = e;
-        if (
-          !sendError.some(
-            (item) => item.errorDescription == errorDescription
-          )
-        )
+        const existingError = sendError.find(item => item.errorDescription == errorDescription);
+        if (existingError) {
+          existingError.threadIDs.push(sended.threadID);
+        } else {
           sendError.push({
-            threadIDs: [sended.threadID],
             errorDescription,
+            threadIDs: [sended.threadID],
           });
-        else
-          sendError
-            .find((item) => item.errorDescription == errorDescription)
-            .threadIDs.push(sended.threadID);
+        }
       }
     }
 
     let msg = "";
-    if (sendSucces > 0) msg += getLang("sentNotification", sendSucces) + "\n";
-    if (sendError.length > 0)
-      msg +=
-        getLang("errorSendingNotification", sendError.reduce((a, b) => a + b.threadIDs.length, 0), sendError.reduce((a, b) => a + `\n - ${b.errorDescription}\n  + ${b.threadIDs.join("\n  + ")}`, ""));
+    if (sendSuccess > 0) msg += getLang("sentNotification", sendSuccess) + "\n";
+    if (sendError.length > 0) {
+      msg += getLang(
+        "errorSendingNotification",
+        sendError.reduce((a, b) => a + b.threadIDs.length, 0),
+        sendError.reduce((a, b) => a + `\n - ${b.errorDescription}\n   + ${b.threadIDs.join("\n   + ")}`, "")
+      );
+    }
+
     message.reply(msg);
   },
 };
