@@ -38,7 +38,7 @@ function getVideoID(url) {
 }
 
 const config = {
-    name: "sing2",
+    name: "sing3",
     author: "Mesbah Saxx",
     credits: "Mesbah Saxx",
     version: "1.2.0",
