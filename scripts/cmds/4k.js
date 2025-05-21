@@ -7,8 +7,8 @@ const baseApiUrl = async () => {
   return base.data.mostakim;
 };
 module.exports.config = {
-  name: "4k",
-  aliases: ["4k", "remini"],
+  name: "upscaleimg",
+  aliases: ["4kpro", "reminipro"],
   category: "enhanced",
   author: "Romim"
 };
