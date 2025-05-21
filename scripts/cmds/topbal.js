@@ -2,7 +2,7 @@ module.exports = {
   config: {
     name: "topbalance",
     version: "1.0",
-    author: "Samir",
+    author: "NAFIJ_PRO( MODED )",
     role: 0,
     shortDescription: {
       en: "Top 10 Richest users"
@@ -12,30 +12,30 @@ module.exports = {
     },
     category: "economy",
     guide: {
-      en: "Use `{pn}topbalance` to see the top 10 richest users."
+      en: "Use `{pn}` to see the top 10 richest users."
     }
   },
 
   onStart: async function ({ api, args, message, event, usersData }) {
     const allUsers = await usersData.getAll();
-    
+
     // Filter out users with no money points
     const usersWithMoney = allUsers.filter(user => user.money > 0);
 
-    if (usersWithMoney.length < 10) {
-      message.reply("There are not enough users with money points to display a top 10 list.");
-      return;
+    if (usersWithMoney.length < 1) {
+      return message.reply("No users with money points found.");
     }
-    
-    // Sort users based on money points (descending) and get the top 10
+
+    // Sort users by money descending
     const topBalance = usersWithMoney.sort((a, b) => b.money - a.money).slice(0, 10);
-    
-    // Create a list of the top 10 richest users
-    const topUsersList = topBalance.map((user, index) => `${index + 1}. ${user.name}: ${user.money}$`);
-    
-    const messageText = `Top 10 Richest Users:\n${topUsersList.join('\n')}`;
-    
-    // Reply with the list of the top 10 richest users
+
+    const medals = ["🥇", "🥈", "🥉"];
+    const messageLines = topBalance.map((user, index) => {
+      const emoji = medals[index] || `🏅`;
+      return `${emoji} ${index + 1}. ${user.name} — 💰 ${user.money}$`;
+    });
+
+    const messageText = `🏆 Top 10 Richest Users 🏆\n\n${messageLines.join('\n')}`;
     message.reply(messageText);
   }
 };

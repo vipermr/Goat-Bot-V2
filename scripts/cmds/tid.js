@@ -6,7 +6,7 @@ module.exports = {
 		countDown: 5,
 		role: 0,
 		description: {
-			vi: "Xem id nhóm chat của bạn",
+			vi: "😉😉",
 			en: "View threadID of your group chat"
 		},
 		category: "info",

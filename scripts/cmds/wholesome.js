@@ -1,4 +1,3 @@
-const axios = require('axios');
 const jimp = require("jimp");
 const fs = require("fs");
 
@@ -6,47 +5,45 @@ module.exports = {
   config: {
     name: "wholesome",
     aliases: ["wsome"],
-    version: "1.0",
-    author: "AceGun",
+    version: "1.1",
+    author: "NAFIJ_PRO( MODED )",
     countDown: 5,
     role: 0,
-    shortdescription: "wholesome",
-    longDescription: "wholesome avatar for crush/lover",
+    shortDescription: "Wholesome avatar effect",
+    longDescription: "Generate a wholesome image with your crush or lover",
     category: "fun",
-    guide: ""
+    guide: "{pn} @mention or reply to a user's message"
   },
 
-  onStart: async function ({ message, event, args }) {
-    const mention = Object.keys(event.mentions);
-    if (mention.length == 0) {
-      message.reply("You must select tag a person");
-      return;
-    }
+  onStart: async function ({ message, event }) {
+    let targetID;
 
-    let one;
-    if (mention.length == 1) {
-      one = mention[0];
+    if (Object.keys(event.mentions).length > 0) {
+      targetID = Object.keys(event.mentions)[0];
+    } else if (event.messageReply) {
+      targetID = event.messageReply.senderID;
     } else {
-      one = mention[0];
+      return message.reply("Please mention or reply to a user's message to use this command.");
     }
 
     try {
-      const imagePath = await bal(one);
+      const imagePath = await generateWholesomeImage(targetID);
       await message.reply({
-        body: "「 is that true?🥰❤️ 」",
+        body: "「 is that true? 🥰❤️ 」",
         attachment: fs.createReadStream(imagePath)
       });
-    } catch (error) {
-      console.error("Error while running command:", error);
-      await message.reply("an error occurred");
+    } catch (err) {
+      console.error(err);
+      return message.reply("An error occurred while generating the image.");
     }
   }
 };
-async function bal(one) {
-  const avatarone = await jimp.read(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`);
-  const image = await jimp.read("https://i.imgur.com/BnWiVXT.jpg");
-  image.resize(512, 512).composite(avatarone.resize(173, 173), 70, 186);
-  const imagePath = "wholesome.png";
-  await image.writeAsync(imagePath);
-  return imagePath;
+
+async function generateWholesomeImage(uid) {
+  const avatar = await jimp.read(`https://graph.facebook.com/${uid}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`);
+  const bg = await jimp.read("https://raw.githubusercontent.com/alkama844/res/refs/heads/main/image/wholesome.jpg");
+  bg.resize(512, 512).composite(avatar.resize(173, 173), 70, 186);
+  const outputPath = "wholesome.png";
+  await bg.writeAsync(outputPath);
+  return outputPath;
 }

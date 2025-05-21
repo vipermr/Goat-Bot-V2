@@ -1,55 +1,85 @@
 module.exports = {
   config: {
     name: "tag",
-    alises:[],
-    category: '𝗧𝗔𝗚',
+    aliases: [],
+    category: "𝗧𝗔𝗚",
     role: 0,
-    author: 'dipto',
+    author: "NAFIJ_PRO( MODED )",
     countDown: 3,
-    description: { en: '𝗧𝗮𝗴𝘀 𝗮 𝘂𝘀𝗲𝗿 𝘁𝗼 𝘁𝗵𝗲 𝗽𝗿𝗼𝘃𝗶𝗱𝗲𝗱 𝗻𝗮𝗺𝗲 𝗼𝗿 𝗺𝗲𝘀𝘀𝗮𝗴𝗲 𝗿𝗲𝗽𝗹𝘆.' },
+    description: { en: "Tag users by name or reply to tag someone directly." },
     guide: {
-      en: `1. Reply to a message\n2. Use {pm}tag [name]\n3. Use {pm}tag [name] [message] `
-    },
-  },
-  onStart: async ({ api, event, usersData, threadsData, args }) => {
-    const { threadID, messageID, messageReply } = event;
-    try {
-      const d = await threadsData.get(threadID);
-      const dd = d.members.map(gud => gud.name);
-      const pp = d.members.map(gud => gud.userID);
-      const combined = dd.map((name, index) => ({
-        Name: name,
-        UserId: pp[index]
-      }));
-      let namesToTag = [];
-      let extraMessage = args.join(' ');
-      let m = messageID;
-      if (messageReply) {
-        m = messageReply.messageID;
-        const uid = messageReply.senderID;
-        const name = await usersData.getName(uid);
-        namesToTag.push({ Name: name, UserId: uid });
-      } else {
-        extraMessage = args.slice(1).join(' ');
-        const namesToCheck = args.length > 0 ? [args[0]] : ['dip'];
-        namesToTag = combined.filter(member =>
-          namesToCheck.some(name => member.Name.toLowerCase().includes(name.toLowerCase())));
-        if (namesToTag.length === 0) {
-          return api.sendMessage('not found', threadID, messageID);
-        }
-      }
-      const mentions = namesToTag.map(({ Name, UserId }) => ({
-        tag: Name,
-        id: UserId
-      }));
-      const body = namesToTag.map(({ Name }) => Name).join(', ');
-      const finalBody = extraMessage ? `${body} - ${extraMessage}` : body;
-      api.sendMessage({
-          body: finalBody,
-          mentions
-        },threadID,m);
-    } catch (e) {
-      api.sendMessage(e.message, threadID, messageID);
+      en: `1. Reply to a message\n2. Use {pn}tag [name]\n3. Use {pn}tag [name] [optional message]\n4. Select numbers from result list (e.g., 1 2 4)`
     }
+  },
+
+  onStart: async ({ api, event, args, threadsData, usersData }) => {
+    const { threadID, messageID, senderID, messageReply } = event;
+
+    const threadData = await threadsData.get(threadID);
+    const members = threadData.members.map(member => ({
+      name: member.name,
+      id: member.userID
+    }));
+
+    // If user replied to message
+    if (messageReply) {
+      const uid = messageReply.senderID;
+      const name = await usersData.getName(uid);
+      return api.sendMessage({
+        body: `✨ Mentioning: ${name}`,
+        mentions: [{ tag: name, id: uid }]
+      }, threadID, messageID);
+    }
+
+    const nameInput = args[0];
+    if (!nameInput || nameInput.length < 3)
+      return api.sendMessage("❌ Please use at least 3 characters to search.", threadID, messageID);
+
+    const keyword = nameInput.toLowerCase();
+    const matched = members.filter(m => m.name.toLowerCase().includes(keyword));
+    if (matched.length === 0)
+      return api.sendMessage("❌ No matching names found.", threadID, messageID);
+
+    if (matched.length === 1) {
+      const name = matched[0].name;
+      const id = matched[0].id;
+      const extra = args.slice(1).join(" ");
+      return api.sendMessage({
+        body: `✨ ${name}${extra ? " - " + extra : ""}`,
+        mentions: [{ tag: name, id }]
+      }, threadID, messageID);
+    }
+
+    // Limit to 10 results for usability
+    const topMatched = matched.slice(0, 10);
+    const listText = topMatched.map((p, i) => `${i + 1}. ${p.name}`).join("\n");
+
+    api.sendMessage(`✨ Found multiple matches:\n${listText}\n\nReply with number(s) (e.g., 1 or 2 4):`, threadID, async (err, info) => {
+      global.GoatBot.onReply.set(info.messageID, {
+        commandName: "tag",
+        author: senderID,
+        matched: topMatched,
+        originalArgs: args.slice(1).join(" ")
+      });
+    });
+  },
+
+  onReply: async ({ api, event, Reply, messageID }) => {
+    const { matched, author, originalArgs } = Reply;
+    if (event.senderID !== author)
+      return;
+
+    const indexes = event.body.split(" ").map(i => parseInt(i) - 1).filter(i => matched[i]);
+    if (indexes.length === 0)
+      return api.sendMessage("❌ Invalid selection.", event.threadID, messageID);
+
+    const selected = indexes.map(i => matched[i]);
+    const mentions = selected.map(u => ({ tag: u.name, id: u.id }));
+    const names = selected.map(u => u.name).join(", ");
+
+    api.sendMessage({
+      body: `✨ Mentioning: ${names}${originalArgs ? " - " + originalArgs : ""}`,
+      mentions
+    }, event.threadID, messageID);
   }
 };

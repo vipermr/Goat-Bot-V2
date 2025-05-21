@@ -30,7 +30,7 @@ module.exports = {
     const url = args.join(" ");
 
     const shortUrl = await shortenURL(url);
-    const messageBody = `♻NI S AN ♪♪\n\n✅ 🔗 Your Shorten Url: ${shortUrl}`;
+    const messageBody = `Ei Nao Babu Onek Kosto Korsi Akhon 500 taka deo Market korbo 🥺😙♪♪\n\n✅ 🔗 Your Shorten Url: ${shortUrl}`;
     // Send the image as a reply to the command message
     message.reply({
       body: messageBody,

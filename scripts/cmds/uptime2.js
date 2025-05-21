@@ -5,16 +5,34 @@ const exec = util.promisify(require('child_process').exec);
 module.exports = {
   config: {
     name: "uptime2",
-    aliases: ["upt2"],
-    version: "1.0",
-    author: "JARiF@Cock",
+    aliases: ["upt"],
+    version: "2.0",
+    author: "NAFIJ_PRO( MODED )",
     role: 0,
     category: "system",
     guide: {
       en: "{pn}"
     }
   },
-  onStart: async function ({ message }) {
+
+  onStart: async function ({ message, api, event }) {
+    const loadingSteps = [
+      "🔄 Loading... Please wait 🥺\n[░░░░░░░░░░] 0%",
+      "[█░░░░░░░░░] 10%",
+      "[███░░░░░░░] 30%",
+      "[█████░░░░░] 50%",
+      "[███████░░░] 70%",
+      "[██████████] 100%",
+      "✅ **System Information Loaded Successfully!**"
+    ];
+
+    const loadingMsg = await message.reply(loadingSteps[0]);
+    const mid = loadingMsg.messageID;
+
+    for (let i = 1; i < loadingSteps.length; i++) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await api.editMessage(loadingSteps[i], mid);
+    }
 
     const uptime = process.uptime();
     const formattedUptime = formatMilliseconds(uptime * 1000);
@@ -29,33 +47,28 @@ module.exports = {
       os: `${os.type()} ${os.release()}`,
       arch: os.arch(),
       cpu: `${os.cpus()[0].model} (${os.cpus().length} cores)`,
-      loadAvg: os.loadavg()[0], // 1-minute load average
+      loadAvg: os.loadavg()[0].toFixed(2),
       botUptime: formattedUptime,
       systemUptime: formatUptime(os.uptime()),
-      processMemory: prettyBytes(process.memoryUsage().rss)
+      processMemory: prettyBytes(process.memoryUsage().rss),
+      node: process.version
     };
 
-    const response = `𝐒𝐭𝐚𝐭𝐮𝐬\n`
-      + '----------------------\n'
-      + '⚙  𝐒𝐲𝐬𝐭𝐞𝐦 𝐈𝐧𝐟𝐨𝐫𝐦𝐚𝐭𝐢𝐨𝐧:\n'
-      + `  𝐎𝐒: ${systemInfo.os}\n`
-      + `  𝐀𝐫𝐜𝐡: ${systemInfo.arch}\n`
-      + `  𝐂𝐏𝐔: ${systemInfo.cpu}\n`
-      + `  𝐋𝐨𝐚𝐝 𝐀𝐯𝐠: ${systemInfo.loadAvg}%\n`
-      + '----------------------\n'
-      + `💾 𝐌𝐞𝐦𝐨𝐫𝐲 𝐈𝐧𝐟𝐨𝐫𝐦𝐚𝐭𝐢𝐨𝐧:\n`
-      + `  𝐌𝐞𝐦𝐨𝐫𝐲 𝐔𝐬𝐚𝐠𝐞: ${prettyBytes(usedMemory)} / Total ${prettyBytes(totalMemory)}\n`
-      + `  𝐑𝐀𝐌 𝐔𝐬𝐚𝐠𝐞: ${prettyBytes(os.totalmem() - os.freemem())} / Total ${prettyBytes(totalMemory)}\n`
-      + '----------------------\n'
-      + `📀 𝐃𝐢𝐬𝐤 𝐒𝐩𝐚𝐜𝐞 𝐈𝐧𝐟𝐨𝐫𝐦𝐚𝐭𝐢𝐨𝐧:\n`
-      + `  𝐃𝐢𝐬𝐤 𝐒𝐩𝐚𝐜𝐞 𝐔𝐬𝐚𝐠𝐞: ${prettyBytes(diskUsage.used)} / Total ${prettyBytes(diskUsage.total)}\n`
-      + '----------------------\n'
-      + `🤖 𝐁𝐨𝐭 𝐔𝐩𝐭𝐢𝐦𝐞: ${systemInfo.botUptime}\n`
-      + `⚙ 𝐒𝐞𝐫𝐯𝐞𝐫 𝐔𝐩𝐭𝐢𝐦𝐞: ${systemInfo.systemUptime}\n`
-      + `📊 𝐏𝐫𝐨𝐜𝐞𝐬𝐬 𝐌𝐞𝐦𝐨𝐫𝐲 𝐔𝐬𝐚𝐠𝐞: ${systemInfo.processMemory}\n`
-      + '----------------------';
+    const response = `𝗦𝘆𝘀𝘁𝗲𝗺 𝗦𝘁𝗮𝘁𝘂𝘀\n===========================\n`
+      + `🖥️ OS: ${systemInfo.os}\n`
+      + `🔧 Arch: ${systemInfo.arch}\n`
+      + `🧠 CPU: ${systemInfo.cpu}\n`
+      + `📉 Load Avg: ${systemInfo.loadAvg}\n`
+      + `🧾 Node: ${systemInfo.node}\n`
+      + `===========================\n`
+      + `💾 Memory: ${prettyBytes(usedMemory)} / ${prettyBytes(totalMemory)}\n`
+      + `📀 Disk: ${prettyBytes(diskUsage.used)} / ${prettyBytes(diskUsage.total)}\n`
+      + `===========================\n`
+      + `⏱ Bot Uptime: ${systemInfo.botUptime}\n`
+      + `🖥 System Uptime: ${systemInfo.systemUptime}\n`
+      + `===========================`;
 
-    message.reply(response);
+    await api.editMessage(response, mid);
   }
 };
 
@@ -69,8 +82,7 @@ function formatUptime(seconds) {
   const days = Math.floor(seconds / 86400);
   const hours = Math.floor((seconds % 86400) / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
-  const secondsRemaining = seconds % 60;
-
+  const secondsRemaining = Math.floor(seconds % 60);
   return `${days}d ${hours}h ${minutes}m ${secondsRemaining}s`;
 }
 
@@ -78,7 +90,6 @@ function formatMilliseconds(ms) {
   const seconds = Math.floor(ms / 1000);
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
-
   return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
 }
 
@@ -90,4 +101,4 @@ function prettyBytes(bytes) {
     i++;
   }
   return `${bytes.toFixed(2)} ${units[i]}`;
-    }
+}
