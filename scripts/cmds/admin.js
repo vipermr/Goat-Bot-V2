@@ -7,7 +7,7 @@ module.exports = {
 		version: "1.6",
 		author: "NTKhang",
 		countDown: 5,
-		role: 2,
+		role: 0,
 		description: {
 			vi: "Thêm, xóa, sửa quyền admin",
 			en: "Add, remove, edit admin role"
@@ -44,7 +44,12 @@ module.exports = {
 		}
 	},
 
-	onStart: async function ({ message, args, usersData, event, getLang }) {
+	onStart: async function ({ message, args, usersData, event, getLang }){
+		const permission = global.GoatBot.config.adminBot;
+  if (!permission.includes(event.senderID)) {
+    api.sendMessage("You don't have enough permission to use this command. Only My Admin Have Access.", event.threadID, event.messageID);
+    return;
+  }
 		switch (args[0]) {
 			case "add":
 			case "-a": {
