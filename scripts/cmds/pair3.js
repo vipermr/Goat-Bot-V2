@@ -1,111 +1,111 @@
 const axios = require("axios");
 const fs = require("fs-extra");
-const { loadImage, createCanvas } = require("canvas");
+const { createCanvas, loadImage } = require("canvas");
+
+let lastUsedTime = 0;
+const globalCooldown = 10 * 1000; // 10 seconds
 
 module.exports = {
   config: {
     name: "pair3",
     countDown: 10,
     role: 0,
-    shortDescription: {
-      en: "Find your life partner (ver 3)"
-    },
-    longDescription: {
-      en: "Matches you with a husband or wife for a long and happy life"
-    },
+    shortDescription: { en: "Pair with a random match of opposite gender" },
+    longDescription: { en: "Pairs the sender with a random opposite-gender user in the group" },
     category: "love",
-    guide: {
-      en: "{pn} (or reply to someone's message)"
-    }
+    guide: { en: "{pn}" }
   },
 
   onStart: async function ({ api, event, usersData }) {
-    const pathImg = __dirname + "/assets/pair3_bg.png";
-    const pathAvt1 = __dirname + "/assets/pair3_avt1.png";
-    const pathAvt2 = __dirname + "/assets/pair3_avt2.png";
-    const backgroundUrl = "https://raw.githubusercontent.com/alkama844/res/refs/heads/main/image/pair3.jpg";
+    const now = Date.now();
+    if (now - lastUsedTime < globalCooldown) {
+      const remaining = Math.ceil((globalCooldown - (now - lastUsedTime)) / 1000);
+      return api.sendMessage(`⏳ Please wait ${remaining} seconds before using this command again.`, event.threadID);
+    }
+    lastUsedTime = now;
 
-    const senderID = event.senderID;
-    const name1 = await usersData.getName(senderID);
-    let id2, name2;
+    const backgroundUrl = "https://raw.githubusercontent.com/alkama844/res/main/image/pair3.jpg";
+    const token = "6628568379%7Cc1e620fa708a1d5696fb991c1bde5662";
+    const pathOut = __dirname + "/assets/pair_result.png";
 
-    if (event.type === "message_reply") {
-      id2 = event.messageReply.senderID;
-      name2 = await usersData.getName(id2);
-    } else {
+    const getAvatarUrl = (id) =>
+      `https://graph.facebook.com/${id}/picture?width=512&height=512&access_token=${token}`;
+
+    try {
       const threadInfo = await api.getThreadInfo(event.threadID);
       const allUsers = threadInfo.userInfo;
       const botID = api.getCurrentUserID();
-      const senderGender = allUsers.find(u => u.id === senderID)?.gender || "UNKNOWN";
+
+      const senderID = event.senderID;
+      const senderInfo = allUsers.find(u => u.id === senderID);
+      const senderGender = senderInfo?.gender?.toUpperCase() || "UNKNOWN";
+      const senderName = await usersData.getName(senderID);
+
+      const matchGender = senderGender === "MALE" ? "FEMALE"
+                        : senderGender === "FEMALE" ? "MALE"
+                        : "UNKNOWN";
+
+      if (matchGender === "UNKNOWN") {
+        return api.sendMessage("❗ Can't detect your gender. Please update your Facebook gender settings.", event.threadID);
+      }
 
       const candidates = allUsers.filter(u =>
         u.id !== senderID &&
         u.id !== botID &&
-        (
-          (senderGender === "MALE" && u.gender === "FEMALE") ||
-          (senderGender === "FEMALE" && u.gender === "MALE") ||
-          (senderGender === "UNKNOWN")
-        )
+        u.gender?.toUpperCase() === matchGender
       );
 
       if (candidates.length === 0) {
-        return api.sendMessage("No suitable partner found in this group.", event.threadID);
+        return api.sendMessage(
+          matchGender === "FEMALE" ? "❌ No girl found." : "❌ No boy found.",
+          event.threadID
+        );
       }
 
-      const chosen = candidates[Math.floor(Math.random() * candidates.length)];
-      id2 = chosen.id;
-      name2 = await usersData.getName(id2);
+      const matchUser = candidates[Math.floor(Math.random() * candidates.length)];
+      const matchName = await usersData.getName(matchUser.id);
+
+      const [bgRes, avt1Res, avt2Res] = await Promise.all([
+        axios.get(backgroundUrl, { responseType: "arraybuffer" }),
+        axios.get(getAvatarUrl(senderID), { responseType: "arraybuffer" }),
+        axios.get(getAvatarUrl(matchUser.id), { responseType: "arraybuffer" }),
+      ]);
+
+      const [bg, avt1, avt2] = await Promise.all([
+        loadImage(Buffer.from(bgRes.data)),
+        loadImage(Buffer.from(avt1Res.data)),
+        loadImage(Buffer.from(avt2Res.data))
+      ]);
+
+      const canvas = createCanvas(bg.width, bg.height);
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(avt1, 150, 170, 280, 280);
+      ctx.drawImage(avt2, 1010, 170, 280, 280);
+
+      await fs.outputFile(pathOut, canvas.toBuffer("image/png"));
+
+      const scores = ["100%", "∞", "99.9%", "❤", "88%", "75%", "93%"];
+      const score = scores[Math.floor(Math.random() * scores.length)];
+
+      const message = `💖 Destiny Match 💖\n\n` +
+        `👤 ${senderName}\n` +
+        `💞 Paired with: ${matchName}\n\n` +
+        `❤️ Compatibility: ${score}\n` +
+        `#Pair - True love never fails.`;
+
+      return api.sendMessage({
+        body: message,
+        mentions: [
+          { tag: senderName, id: senderID },
+          { tag: matchName, id: matchUser.id }
+        ],
+        attachment: fs.createReadStream(pathOut)
+      }, event.threadID, () => fs.unlinkSync(pathOut), event.messageID);
+
+    } catch (err) {
+      console.error("Error in pair2 command:", err);
+      return api.sendMessage("❌ Something went wrong while pairing.", event.threadID);
     }
-
-    // Download avatars and background
-    const [avt1Data, avt2Data, bgData] = await Promise.all([
-      axios.get(`https://graph.facebook.com/${senderID}/picture?width=720&height=720`, { responseType: "arraybuffer" }),
-      axios.get(`https://graph.facebook.com/${id2}/picture?width=720&height=720`, { responseType: "arraybuffer" }),
-      axios.get(backgroundUrl, { responseType: "arraybuffer" })
-    ]);
-
-    fs.writeFileSync(pathAvt1, Buffer.from(avt1Data.data, "utf-8"));
-    fs.writeFileSync(pathAvt2, Buffer.from(avt2Data.data, "utf-8"));
-    fs.writeFileSync(pathImg, Buffer.from(bgData.data, "utf-8"));
-
-    // Draw image
-    const baseImage = await loadImage(pathImg);
-    const avatar1 = await loadImage(pathAvt1);
-    const avatar2 = await loadImage(pathAvt2);
-    const canvas = createCanvas(baseImage.width, baseImage.height);
-    const ctx = canvas.getContext("2d");
-
-    ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-    ctx.drawImage(avatar1, 110, 180, 330, 330);
-    ctx.drawImage(avatar2, 1020, 180, 330, 330);
-
-    const finalImage = canvas.toBuffer();
-    fs.writeFileSync(pathImg, finalImage);
-
-    // Clean up
-    fs.removeSync(pathAvt1);
-    fs.removeSync(pathAvt2);
-
-    const specialRates = ["0.01", "∞", "100", "99.99", "❤️"];
-    const rate = Math.random() < 0.85
-      ? `${Math.floor(Math.random() * 100)}%`
-      : specialRates[Math.floor(Math.random() * specialRates.length)];
-
-    const message = `💍 Official Marriage Certificate 💍\n\n` +
-      `👰 Wife: ${name1}\n` +
-      `🤵 Husband: ${name2}\n\n` +
-      `❤️ Compatibility Score: ${rate}\n` +
-      `✨ May your marriage be full of joy, respect, and everlasting love.\n` +
-      `🕊️ Wishing you a long life and countless happy days together.\n\n` +
-      `#Pair3 - Soulbound by destiny.`
-
-    return api.sendMessage({
-      body: message,
-      mentions: [
-        { tag: name1, id: senderID },
-        { tag: name2, id: id2 }
-      ],
-      attachment: fs.createReadStream(pathImg)
-    }, event.threadID, () => fs.unlinkSync(pathImg), event.messageID);
   }
 };
