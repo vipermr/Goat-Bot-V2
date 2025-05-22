@@ -1,85 +1,132 @@
-module.exports = {
-  config: {
-    name: "tag",
-    aliases: [],
-    category: "𝗧𝗔𝗚",
-    role: 0,
-    author: "NAFIJ_PRO( MODED )",
-    countDown: 3,
-    description: { en: "Tag users by name or reply to tag someone directly." },
-    guide: {
-      en: `1. Reply to a message\n2. Use {pn}tag [name]\n3. Use {pn}tag [name] [optional message]\n4. Select numbers from result list (e.g., 1 2 4)`
-    }
-  },
+!cmd install module.exports = {
 
-  onStart: async ({ api, event, args, threadsData, usersData }) => {
-    const { threadID, messageID, senderID, messageReply } = event;
+  config: {
 
-    const threadData = await threadsData.get(threadID);
-    const members = threadData.members.map(member => ({
-      name: member.name,
-      id: member.userID
-    }));
+    name: "tg",
 
-    // If user replied to message
-    if (messageReply) {
-      const uid = messageReply.senderID;
-      const name = await usersData.getName(uid);
-      return api.sendMessage({
-        body: `✨ Mentioning: ${name}`,
-        mentions: [{ tag: name, id: uid }]
-      }, threadID, messageID);
-    }
+    version: "1.0",
 
-    const nameInput = args[0];
-    if (!nameInput || nameInput.length < 3)
-      return api.sendMessage("❌ Please use at least 3 characters to search.", threadID, messageID);
+    author: "♛ N A F I J ♛",
 
-    const keyword = nameInput.toLowerCase();
-    const matched = members.filter(m => m.name.toLowerCase().includes(keyword));
-    if (matched.length === 0)
-      return api.sendMessage("❌ No matching names found.", threadID, messageID);
+    role: 0,
 
-    if (matched.length === 1) {
-      const name = matched[0].name;
-      const id = matched[0].id;
-      const extra = args.slice(1).join(" ");
-      return api.sendMessage({
-        body: `✨ ${name}${extra ? " - " + extra : ""}`,
-        mentions: [{ tag: name, id }]
-      }, threadID, messageID);
-    }
+    category: "pro",
 
-    // Limit to 10 results for usability
-    const topMatched = matched.slice(0, 10);
-    const listText = topMatched.map((p, i) => `${i + 1}. ${p.name}`).join("\n");
+    shortDescription: { en: "Tag by name" },
 
-    api.sendMessage(`✨ Found multiple matches:\n${listText}\n\nReply with number(s) (e.g., 1 or 2 4):`, threadID, async (err, info) => {
-      global.GoatBot.onReply.set(info.messageID, {
-        commandName: "tag",
-        author: senderID,
-        matched: topMatched,
-        originalArgs: args.slice(1).join(" ")
-      });
-    });
-  },
+    longDescription: { en: "Search and tag user by their name" },
 
-  onReply: async ({ api, event, Reply, messageID }) => {
-    const { matched, author, originalArgs } = Reply;
-    if (event.senderID !== author)
-      return;
+    guide: { en: "tg <name>" }
 
-    const indexes = event.body.split(" ").map(i => parseInt(i) - 1).filter(i => matched[i]);
-    if (indexes.length === 0)
-      return api.sendMessage("❌ Invalid selection.", event.threadID, messageID);
+  },
 
-    const selected = indexes.map(i => matched[i]);
-    const mentions = selected.map(u => ({ tag: u.name, id: u.id }));
-    const names = selected.map(u => u.name).join(", ");
 
-    api.sendMessage({
-      body: `✨ Mentioning: ${names}${originalArgs ? " - " + originalArgs : ""}`,
-      mentions
-    }, event.threadID, messageID);
-  }
-};
+  onStart: async function ({ event, api, args }) {
+
+    const { threadID, messageID, senderID } = event;
+
+    const input = args.join(" ").toLowerCase().trim();
+
+    const threadInfo = await api.getThreadInfo(threadID);
+
+
+    let targetUsers = [];
+
+
+    if (input.length > 0) {
+
+      for (const user of threadInfo.userInfo) {
+
+        if (user.name && user.name.toLowerCase().includes(input)) {
+
+          targetUsers.push({ id: user.id, name: user.name });
+
+        }
+
+      }
+
+    } else {
+
+      return api.sendMessage("নাম কি তোর নানা দিবে ?", threadID, messageID);
+
+    }
+
+
+    if (targetUsers.length > 5) {
+
+      return api.sendMessage("⚠️ ভালকরে নাম লিখ বলদ😕.", threadID, messageID);
+
+    }
+
+
+    if (targetUsers.length === 0) {
+
+      return api.sendMessage("❌  targets not found.", threadID, messageID);
+
+    }
+
+
+    let text = `🎯 ${targetUsers.length} targe found:\n`;
+
+    targetUsers.forEach((user, index) => {
+
+      text += `${index + 1}. ${user.name}\n`;
+
+    });
+
+
+    api.sendMessage(text, threadID, (e, info) => {
+
+      global.GoatBot.onReply.set(info.messageID, {
+
+        commandName: "tg",
+
+        type: "tag",
+
+        targetUsers: targetUsers
+
+      });
+
+    });
+
+  },
+
+
+  onReply: async function ({ event, api, Reply }) {
+
+    const { threadID, messageID, body, senderID } = event;
+
+    const targetUsers = Reply.targetUsers;
+
+
+    if (body && !isNaN(body)) {
+
+      const index = parseInt(body) - 1;
+
+      if (index >= 0 && index < targetUsers.length) {
+
+        const user = targetUsers[index];
+
+        api.sendMessage({
+
+          body: `🧟👋 ${user.name} `,
+
+          mentions: [{ tag: user.name, id: user.id }]
+
+        }, threadID);
+
+      } else {
+
+        api.sendMessage("⚠️ ঠিক করে সিলেক্ট কর 🧟.", threadID, messageID);
+
+      }
+
+    } else {
+
+      api.sendMessage("⚠️ Please reply with the number.", threadID, messageID);
+
+    }
+
+  }
+
+}; tg.js
