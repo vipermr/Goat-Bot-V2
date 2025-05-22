@@ -1,15 +1,19 @@
 const axios = require("axios");
 
+const cooldown = new Map();
+global.quizSessions = global.quizSessions || {};
+global.dailyQuizLimit = global.dailyQuizLimit || {};
+
 module.exports = {
   config: {
     name: "quizpro",
     aliases: [],
-    version: "1.0",
-    author: "NAFIJ x ChatGPT",
-    countDown: 5,
+    version: "2.2",
+    author: "NAFIJ x PRO",
+    countDown: 0,
     role: 0,
-    shortDescription: "Pro level quiz challenge",
-    longDescription: "25 question quiz from BD & Science. Win coins!",
+    shortDescription: "One-question quiz game",
+    longDescription: "BD/Science quiz with 15s timer and coin reward",
     category: "game",
     guide: {
       en: "{pn}"
@@ -18,74 +22,83 @@ module.exports = {
 
   onStart: async function ({ api, event, usersData }) {
     const { threadID, senderID, messageID } = event;
-    let score = 0;
-    const totalQuestions = 25;
-    let currentQuestion = 0;
-    const userID = senderID;
+    const now = Date.now();
+
+    // Daily limit reset (every midnight)
+    const today = new Date().toLocaleDateString();
+    if (!global.dailyQuizLimit[senderID] || global.dailyQuizLimit[senderID].date !== today) {
+      global.dailyQuizLimit[senderID] = {
+        count: 0,
+        date: today
+      };
+    }
+
+    // Check if user reached daily limit
+    if (global.dailyQuizLimit[senderID].count >= 20) {
+      return api.sendMessage("⛔ Bujhi quiz khub posondo! Kintu daily 20 barer limit ache. Kal abar try koro.", threadID, messageID);
+    }
+
+    // Cooldown check
+    if (cooldown.has(senderID) && now - cooldown.get(senderID) < 7000) {
+      const left = Math.ceil((7000 - (now - cooldown.get(senderID))) / 1000);
+      return api.sendMessage(`🥺 Wait koro Babu... ${left}s baki`, threadID, messageID);
+    }
+    cooldown.set(senderID, now);
 
     let res;
     try {
       res = await axios.get("https://raw.githubusercontent.com/alkama844/res/refs/heads/main/json/quizpro.json");
     } catch (err) {
-      return api.sendMessage("Failed to fetch questions. Try again later.", threadID, messageID);
+      return api.sendMessage("❌ Quiz load korte parlam na. Try again poray.", threadID, messageID);
     }
 
-    const allQuestions = res.data;
-    const shuffled = allQuestions.sort(() => 0.5 - Math.random()).slice(0, totalQuestions);
+    const questions = res.data;
+    const q = questions[Math.floor(Math.random() * questions.length)];
+    const correctIndex = q.options.indexOf(q.answer) + 1;
+    const optionsText = q.options.map((opt, i) => `${i + 1}. ${opt}`).join("\n");
 
-    const sendQuestion = async () => {
-      if (currentQuestion >= totalQuestions) {
-        const result = `✅ Quiz Done!\nCorrect: ${score}/${totalQuestions}\n`;
-        const reward = score * 1500 - (totalQuestions - score) * 500;
+    const quizMessage = `🧠 *Quiz Time!*\n\n${q.question}\n\n${optionsText}\n\n⏳ *15s ache.* Reply with 1, 2, 3, or 4`;
 
-        await usersData.addMoney(userID, reward);
-        return api.sendMessage(`${result}${reward > 0 ? `You won +$${reward}` : `You lost $${Math.abs(reward)}`}`, threadID);
-      }
+    api.sendMessage(quizMessage, threadID, async (err, info) => {
+      if (err) return;
 
-      const q = shuffled[currentQuestion];
-      const optionsText = q.options.map((opt, i) => `${i + 1}. ${opt}`).join("\n");
-
-      api.sendMessage(
-        `(${currentQuestion + 1}/${totalQuestions})\n${q.question}\n\n${optionsText}\n\n⏳ You have 10 seconds to answer!`,
+      global.quizSessions[info.messageID] = {
+        senderID,
+        correctIndex,
+        answer: q.answer,
         threadID,
-        async (err, info) => {
-          const correctIndex = q.options.indexOf(q.answer) + 1;
+        timeout: setTimeout(() => {
+          api.sendMessage(`⏰ Time's up!\nSothik chilo: ${correctIndex}. ${q.answer}`, threadID);
+          delete global.quizSessions[info.messageID];
+        }, 15000)
+      };
+    });
+  },
 
-          const answerHandler = async (reply) => {
-            if (reply.senderID !== userID) {
-              return api.sendMessage("😤 Eta Tor Ta Na, Nijer Chorkai Tel De 😾", threadID, reply.messageID);
-            }
+  onChat: async function ({ event, api, usersData }) {
+    const { messageID, threadID, senderID, body } = event;
+    const userAns = parseInt(body?.trim());
 
-            const ans = reply.body?.trim();
-            if (!["1", "2", "3", "4"].includes(ans)) return;
+    if (!["1", "2", "3", "4"].includes(body?.trim())) return;
 
-            if (parseInt(ans) === correctIndex) {
-              score++;
-              api.sendMessage("✅ Correct!", threadID);
-            } else {
-              api.sendMessage(`❌ Wrong! Correct ans: ${correctIndex}. ${q.answer}`, threadID);
-            }
+    for (const msgID in global.quizSessions) {
+      const session = global.quizSessions[msgID];
 
-            currentQuestion++;
-            setTimeout(() => sendQuestion(), 1500);
-          };
+      if (session.threadID === threadID && session.senderID === senderID) {
+        clearTimeout(session.timeout);
+        delete global.quizSessions[msgID];
 
-          const timeout = setTimeout(() => {
-            api.sendMessage(`⏰ Time's up! Ans was: ${correctIndex}. ${q.answer}`, threadID);
-            currentQuestion++;
-            setTimeout(() => sendQuestion(), 1500);
-          }, 10000);
+        // Count towards daily limit
+        global.dailyQuizLimit[senderID].count++;
 
-          api.listenMqtt((callback) => {
-            if (callback.threadID === threadID && callback.messageID !== info.messageID) {
-              clearTimeout(timeout);
-              answerHandler(callback);
-            }
-          });
+        if (userAns === session.correctIndex) {
+          await usersData.addMoney(senderID, 1500);
+          return api.sendMessage(`✅ Sothik uttor! +$1500 paiso`, threadID);
+        } else {
+          await usersData.addMoney(senderID, -500);
+          return api.sendMessage(`❌ Bhul hoise!\nSothik chilo: ${session.correctIndex}. ${session.answer}\n-$500 kete gese`, threadID);
         }
-      );
-    };
-
-    sendQuestion();
+      }
+    }
   }
 };
