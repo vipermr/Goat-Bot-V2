@@ -1,8 +1,18 @@
-const fs = require('fs');
-const path = require('path');
-const { uploadFile, downloadFile } = require('./driveHelper');
+const fs = require("fs");
+const path = require("path");
+const axios = require("axios");
+const drive = require("./NAFIJ/PRO/driveHelper.js");
 
-const videoDBPath = path.join(__dirname, 'videos.json');
+const storagePath = path.join(__dirname, "NAFIJ", "PRO", "provideo-storage.json");
+
+function loadStorage() {
+  if (!fs.existsSync(storagePath)) fs.writeFileSync(storagePath, "[]");
+  return JSON.parse(fs.readFileSync(storagePath));
+}
+
+function saveStorage(data) {
+  fs.writeFileSync(storagePath, JSON.stringify(data, null, 2));
+}
 
 module.exports = {
   config: {
@@ -10,69 +20,67 @@ module.exports = {
     version: "1.0",
     author: "NAFIJ",
     role: 0,
-    shortDescription: "Send or add videos",
-    longDescription: "Send a random video or add one from reply or link",
+    shortDescription: "Send or save videos",
+    longDescription: "Send a random video or add a video from reply or Facebook link.",
     category: "media",
-    guide: "{pn} [add | add <link> | nothing]"
+    guide: "{pn} [add | add <fb-link>]"
   },
 
-  onStart: async function ({ event, message, args, api }) {
-    const { threadID, messageID, messageReply } = event;
+  onStart: async function ({ message, args, event }) {
+    const storage = loadStorage();
 
-    if (!fs.existsSync(videoDBPath)) {
-      fs.writeFileSync(videoDBPath, '[]', 'utf-8');
-    }
-
-    let videoList = JSON.parse(fs.readFileSync(videoDBPath));
-
-    // ADD MODE
+    // Add video from reply or link
     if (args[0] === "add") {
-      // Case 1: Add FB link
-      if (args[1] && args[1].startsWith("http")) {
-        videoList.push({ type: "link", url: args[1] });
-        fs.writeFileSync(videoDBPath, JSON.stringify(videoList, null, 2));
-        return message.reply("✅ Facebook video link added.");
-      }
+      const reply = event.messageReply;
 
-      // Case 2: Add replied video
-      if (messageReply?.attachments?.[0]?.type === "video") {
-        const videoUrl = messageReply.attachments[0].url;
-        const localPath = path.join(__dirname, `temp_${Date.now()}.mp4`);
+      if (reply && reply.attachments[0]?.type === "video") {
+        const videoUrl = reply.attachments[0].url;
+        const fileName = `video_${Date.now()}.mp4`;
+        const localPath = path.join(__dirname, "NAFIJ", "PRO", fileName);
 
-        const downloader = require("node-fetch");
-        const res = await downloader(videoUrl);
-        const fileStream = fs.createWriteStream(localPath);
-        await new Promise((resolve) => {
-          res.body.pipe(fileStream);
-          res.body.on("end", resolve);
-        });
+        // Download video
+        const res = await axios.get(videoUrl, { responseType: "stream" });
+        const writer = fs.createWriteStream(localPath);
+        res.data.pipe(writer);
+        await new Promise(resolve => writer.on("finish", resolve));
 
-        const fileId = await uploadFile(localPath);
+        // Upload to drive and save ID
+        const fileId = await drive.uploadFile(localPath, fileName);
+        storage.push({ fileId, name: fileName });
+        saveStorage(storage);
         fs.unlinkSync(localPath);
-        videoList.push({ type: "drive", id: fileId });
-        fs.writeFileSync(videoDBPath, JSON.stringify(videoList, null, 2));
-        return message.reply("✅ Video uploaded to Drive and added.");
+
+        return message.reply("✅ Video added successfully to storage.");
       }
 
-      return message.reply("Please reply to a video or provide a Facebook video link.");
+      // Add via link
+      if (args[1]?.startsWith("https://www.facebook.com/")) {
+        const fbLink = args[1];
+        storage.push({ fbLink });
+        saveStorage(storage);
+        return message.reply("✅ Facebook video link added to storage.");
+      }
+
+      return message.reply("⚠️ Please reply to a video or provide a Facebook link.");
     }
 
-    // PLAY MODE
-    if (videoList.length === 0) return message.reply("No videos saved.");
+    // Send a random video
+    if (storage.length === 0) return message.reply("❌ No videos in storage.");
 
-    const random = videoList[Math.floor(Math.random() * videoList.length)];
+    const rand = storage[Math.floor(Math.random() * storage.length)];
 
-    if (random.type === "link") {
-      return message.reply(`Here’s a saved video link:\n${random.url}`);
-    }
-
-    if (random.type === "drive") {
-      const tempPath = path.join(__dirname, `video_${Date.now()}.mp4`);
-      await downloadFile(random.id, tempPath);
+    if (rand.fileId) {
+      const localPath = await drive.downloadFile(rand.fileId);
       return message.reply({
-        body: "Here’s a random video from Drive:",
-        attachment: fs.createReadStream(tempPath)
-      }, () => fs.unlinkSync(tempPath));
+        body: "🎬 Here's a random video for you!",
+        attachment: fs.createReadStream(localPath)
+      });
     }
+
+    if (rand.fbLink) {
+      return message.reply(`🎥 Facebook video link: ${rand.fbLink}`);
+    }
+
+    message.reply("⚠️ Could not find a valid video.");
   }
 };
