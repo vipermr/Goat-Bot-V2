@@ -68,6 +68,8 @@ async function downloadFile(fileId, destPath) {
 }
 
 module.exports = {
+  authenticate,
   uploadFile,
   downloadFile,
+};
 };
