@@ -14,14 +14,21 @@ module.exports = (api, threadModel, userModel, dashBoardModel, globalModel, user
 			return;
 
 		// Global ban check for threads
-		const fs = require("fs");
-		const banPath = __dirname + "/cmds/cache/thread-manage.json";
-		if (fs.existsSync(banPath)) {
-			const banData = JSON.parse(fs.readFileSync(banPath));
-			if (banData.banList.some(t => t.id === event.threadID)) {
-				return api.sendMessage("🚫 Your group is banned from using this bot!", event.threadID);
-			}
+		// Global ban check for threads
+const fs = require("fs");
+const banPath = __dirname + "/cmds/cache/thread-manage.json";
+
+if (fs.existsSync(banPath)) {
+	const banData = JSON.parse(fs.readFileSync(banPath));
+	const isBanned = banData.banList.some(t => t.id === event.threadID);
+	if (isBanned) {
+		// Block all types of events from banned groups
+		if (["message", "message_reply", "message_reaction", "event"].includes(event.type)) {
+			return api.sendMessage("🚫 This group is *banned* from using the bot!", event.threadID);
 		}
+		return; // silently block other types
+	}
+}
 //new ban cheek code end here
 
 		const message = createFuncMessage(api, event);
