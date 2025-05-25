@@ -4,7 +4,7 @@ const path = require("path");
 module.exports = {
   config: {
     name: "wallpaper",
-    aliases: ["wl"],
+    aliases: ["wlp"],
     version: "1.1",
     author: "Samir Œ",
     countDown: 5,
