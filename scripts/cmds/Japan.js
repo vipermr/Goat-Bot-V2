@@ -5,7 +5,7 @@ module.exports = {
     hasPermission: 0,
     credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭",
     description: "Random Japan Girl Image",
-    commandCategory: "Random-IMG",
+    Category: "fun",
     usages: "japan",
     cooldowns: 5
   },
