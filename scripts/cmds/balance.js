@@ -1,7 +1,7 @@
 module.exports = {
 	config: {
-		name: "balance",
-		aliases: ["bal"],
+		name: "balancecoin",
+		aliases: ["balcoin"],
 		version: "1.2",
 		author: "NTKhang",
 		countDown: 5,
