@@ -1,4 +1,4 @@
-.cmd install const fs = require('fs');
+const fs = require('fs');
 const path = require('path');
 const moment = require('moment');
 
@@ -136,4 +136,4 @@ return message.reply(
 `${EMOJI.INFO} LOTTERY STATUS\n• Tickets sold: ${data.ticketCount}/150\n• Prize pool: ${EMOJI.MONEY}${data.pool.toLocaleString()}\n• Next draw: ${drawTimeStr}`
 );
 }
-}; l.js
+};
