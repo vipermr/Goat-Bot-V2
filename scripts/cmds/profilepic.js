@@ -3,7 +3,7 @@ const axios = require("axios");
 module.exports = {
   config: {
     name: "profilepic",
-    aliases: ["changeavt", "setavatar"],
+    aliases: ["cngpp", "cngppp"],
     version: "1.3",
     author: "NTKhang (edited by NAFIJPRO✅)",
     countDown: 5,
