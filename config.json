@@ -12,13 +12,13 @@
 	"antiInbox": false,
 	"language": "en",
 	"notesLanguage": "change to your language with ISO 639-1 code, available languages: vi (Vietnamese), en (English)",
-	"nickNameBot": "😾 ANGRY SIZUKA 🤭",
+	"nickNameBot": "😾 ANGRY SIZUKA 🌸",
 	"prefix": ".",
 	"adminOnly": {
 		"enable": false,
 		"ignoreCommand": []
 	},
-	"adminBot": [],
+	"adminBot": [100058371606434, 100076392488331, 1234, 123],
 	"whiteListMode": {
 		"enable": false,
 		"whiteListIds": [],
@@ -141,4 +141,4 @@
 		"autoReconnect": false,
 		"notes": "Document here: https://github.com/ntkhang03/fb-chat-api/blob/master/DOCS.md#apisetoptionsoptions "
 	}
-}
+    }
