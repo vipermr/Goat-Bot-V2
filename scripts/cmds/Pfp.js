@@ -1,7 +1,7 @@
 module.exports = {
   config: {
-    name: "profile",
-    aliases: ["pp"],
+    name: "facebookpp",
+    aliases: ["fpp"],
     version: "1.1",
     author: "NIB | No prefix by ArYan",
     countDown: 5,
