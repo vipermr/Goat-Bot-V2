@@ -10,7 +10,7 @@ module.exports = {
     hasPermission: 0,
     credits: "NAFIJ",
     description: "Slap a user by tagging or replying",
-    commandCategory: "fun",
+    Category: "fun",
     usages: "slap @user / reply",
     cooldowns: 5
   },
