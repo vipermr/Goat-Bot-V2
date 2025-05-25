@@ -15,7 +15,7 @@ function saveVIP(data) {
 
 module.exports = {
 	config: {
-		name: "vipfont",
+		name: "vipfontuser",
 		version: "1.1",
 		author: "NAFIJ",
 		countDown: 3,
