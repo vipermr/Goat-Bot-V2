@@ -33,7 +33,7 @@ module.exports = {
 
     return api.sendMessage(msg, event.threadID, (err, info) => {
       global.GoatBot.onReply.set(info.messageID, {
-        commandName: "listbox10",
+        commandName: "listboxpro",
         messageID: info.messageID,
         author: senderID,
         groups
