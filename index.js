@@ -1,3 +1,10 @@
+const express = require('express');
+const path = require('path');
+
+const app = express();
+const port = 3000;
+
+
 /**
  * @author NTKhang
  * ! The source code is written by NTKhang, please don't change the author's name everywhere. Thank you for using
@@ -36,3 +43,14 @@ function startProject() {
 }
 
 startProject();
+
+
+// Route: /test to serve HTML file from same folder
+app.get('/test', (req, res) => {
+  res.sendFile(path.join(__dirname, 'test.html'));
+});
+
+// Start server
+app.listen(port, () => {
+  console.log(`Server running 🚀💉 at http://localhost:${port}`);
+});
