@@ -17,10 +17,6 @@
  * Cảm ơn bạn đã sử dụng
  */
 
-process.env.NODE_ENV = process.env.NODE_ENV || 'production';
-console.log(`Running in ${process.env.NODE_ENV} mode`);
-
-
 const { spawn } = require("child_process");
 const log = require("./logger/log.js");
 
@@ -40,21 +36,3 @@ function startProject() {
 }
 
 startProject();
-
-
-const express = require('express');
-const app = express();
-
-// Middleware (optional)
-app.use(express.json());
-
-// Route
-app.get('/test', (req, res) => {
-  res.send('Render is working properly 🤲🏼🙂!');
-});
-
-// Correct port for Render
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}💉🧪🚀`);
-});
