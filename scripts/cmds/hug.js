@@ -10,7 +10,7 @@ module.exports = {
     hasPermission: 0,
     credits: "Priyansh Rajput",
     description: "Hug someone 🥰",
-    Category: "fun",
+    category: "fun",
     usages: "[@mention]",
     cooldowns: 5
   },
