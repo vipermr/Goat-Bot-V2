@@ -9,10 +9,9 @@ module.exports = {
     aliases: ["fchat2"],
     version: "1.0",
     role: 2, // Only bot admins
-    premium: false,
     author: "NAFIJ",
     description: "Create a fake Messenger-style chat image",
-    category: "system",
+    category: "owner",
     countDown: 10,
   },
 
