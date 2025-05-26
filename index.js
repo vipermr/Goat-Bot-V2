@@ -1,9 +1,20 @@
 const express = require('express');
 const path = require('path');
+const { spawn } = require("child_process");
+const log = require("./logger/log.js");
 
 const app = express();
 const port = 3000;
 
+// Route: /test
+app.get('/test', (req, res) => {
+  res.sendFile(path.join(__dirname, 'test.html'));
+});
+
+// Start web server
+app.listen(port, () => {
+  console.log(`Web server running at http://localhost:${port}`);
+});
 
 /**
  * @author NTKhang
@@ -43,14 +54,3 @@ function startProject() {
 }
 
 startProject();
-
-
-// Route: /test to serve HTML file from same folder
-app.get('/test', (req, res) => {
-  res.sendFile(path.join(__dirname, 'test.html'));
-});
-
-// Start server
-app.listen(port, () => {
-  console.log(`Server running 🚀💉 at http://localhost:${port}`);
-});
