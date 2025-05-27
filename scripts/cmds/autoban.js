@@ -1,190 +1,149 @@
 const { getTime } = global.utils;
 
-let autobanEnabled = false; 
+let autobanEnabled = false;
 
 module.exports = {
-    config: {
-        name: "autoban",
-        version: "1.3",
-        author: "NTKhang x Samir Œ",
-        countDown: 5,
-        role: 2,
-        shortDescription: {
-            vi: "Quản lý người dùng",
-            en: "Manage users"
-        },
-        longDescription: {
-            vi: "Quản lý người dùng trong hệ thống bot",
-            en: "Manage users in bot system"
-        },
-        category: "owner",
-        guide: {
-            
-        },
-        commands: [
-            {
-                command: "autoban",
-                description: {
-                    vi: "Bật/tắt chế độ tự động cấm người dùng vi phạm từ ngữ nhạy cảm",
-                    en: "Turn on/off automatic banning of users who violate sensitive language"
-                },
-                syntax: {
-                    vi: "autoban [on|off]",
-                    en: "autoban [on|off]"
-                }
-            }
-            
-        ]
-    },
+	config: {
+		name: "autoban",
+		version: "2.0",
+		author: "NAFIJ PRO x NTKhang",
+		countDown: 5,
+		role: 2,
+		category: "owner",
+		shortDescription: "Ban system & autoban toggle",
+		longDescription: "Ban/unban users & auto-ban for sensitive words",
+		guide: {
+			en: "{pn} ban [@reply/@mention/uid] [reason]\n"
+				+ "{pn} unban [@reply/@mention/uid]\n"
+				+ "{pn} find <name>\n"
+				+ "{pn} autoban [on/off]"
+		}
+	},
 
-    langs: {
-        
-    },
+	onStart: async function ({ args, usersData, message, event, prefix }) {
+		const type = args[0];
 
-    onStart: async function ({ args, usersData, message, event, prefix, getLang }) {
-        const type = args[0];
-        switch (type) {
-            case "find":
-            case "-f":
-            case "search":
-            case "-s": {
-                const allUser = await usersData.getAll();
-                const keyWord = args.slice(1).join(" ");
-                const result = allUser.filter(item => (item.name || "").toLowerCase().includes(keyWord.toLowerCase()));
-                const msg = result.reduce((i, user) => i += `\n╭Name: ${user.name}\n╰ID: ${user.userID}`, "");
-                message.reply(result.length == 0 ? getLang("noUserFound", keyWord) : getLang("userFound", result.length, keyWord, msg));
-                break;
-            }
-                
-            
-        case "ban":
-        case "-b": {
-            let uid, reason;
-            if (event.type == "message_reply") {
-                uid = event.messageReply.senderID;
-                reason = args.slice(1).join(" ");
-            }
-            else if (Object.keys(event.mentions).length > 0) {
-                const { mentions } = event;
-                uid = Object.keys(mentions)[0];
-                reason = args.slice(1).join(" ").replace(mentions[uid], "");
-            }
-            else if (args[1]) {
-                uid = args[1];
-                reason = args.slice(2).join(" ");
-            }
-            else return message.SyntaxError();
+		switch (type) {
+			case "find":
+			case "-f":
+			case "search":
+			case "-s": {
+				const allUser = await usersData.getAll();
+				const keyWord = args.slice(1).join(" ");
+				if (!keyWord) return message.reply(`Please provide a name to search.`);
 
-            if (!uid)
-                return message.reply(getLang("uidRequired"));
-            
-            // Check if UID is protected
-            if (uid === "100083900196039") {
-                return message.reply("This UID is protected and cannot be banned.");
-            }
-            
-            if (!reason)
-                return message.reply(getLang("reasonRequired", prefix));
-            reason = reason.replace(/\s+/g, ' ');
+				const result = allUser.filter(item => (item.name || "").toLowerCase().includes(keyWord.toLowerCase()));
+				if (result.length === 0)
+					return message.reply(`No users found with keyword: "${keyWord}"`);
 
-            const userData = await usersData.get(uid);
-            const name = userData.name;
-            const status = userData.banned.status;
+				const msg = result.reduce((txt, user) => txt += `\n╭Name: ${user.name}\n╰ID: ${user.userID}`, "");
+				message.reply(`Found ${result.length} user(s) with keyword: "${keyWord}":\n${msg}`);
+				break;
+			}
 
-            if (status)
-                return message.reply(getLang("userHasBanned", uid, name, userData.banned.reason, userData.banned.date));
-            const time = getTime("DD/MM/YYYY HH:mm:ss");
-            await usersData.set(uid, {
-                banned: {
-                    status: true,
-                    reason,
-                    date: time
-                }
-            });
-            message.reply(getLang("userBanned", uid, name, reason, time));
-            break;
-        }
-  
-            case "unban":
-            case "-u": {
-                let uid;
-    if (event.type == "message_reply") {
-        uid = event.messageReply.senderID;
-    }
-    else if (Object.keys(event.mentions).length > 0) {
-        const { mentions } = event;
-        uid = Object.keys(mentions)[0];
-    }
-    else if (args[1]) {
-        uid = args[1];
-    }
-    else
-        return message.SyntaxError();
-    if (!uid)
-        return message.reply(getLang("uidRequiredUnban"));
-    const userData = await usersData.get(uid);
-    const name = userData.name;
-    const status = userData.banned.status;
-    if (!status)
-        return message.reply(getLang("userNotBanned", uid, name));
-    await usersData.set(uid, {
-        banned: {}
-    });
-    message.reply(getLang("userUnbanned", uid, name));
-    break;
-}
+			case "ban":
+			case "-b": {
+				let uid, reason;
 
-            
-        case "autoban":
-            if (args[1] === "on") {
-                autobanEnabled = true;
-                message.reply("Autoban has been enabled.");
-            } else if (args[1] === "off") {
-                autobanEnabled = false;
-                message.reply("Autoban has been disabled.");
-            } else {
-                message.reply("Usage: user autoban [on|off]");
-            }
-            break;
-        default:
-            return message.SyntaxError();
-    }
-},
+				if (event.type == "message_reply") {
+					uid = event.messageReply.senderID;
+					reason = args.slice(1).join(" ");
+				} else if (Object.keys(event.mentions).length > 0) {
+					uid = Object.keys(event.mentions)[0];
+					reason = args.slice(1).join(" ").replace(event.mentions[uid], "");
+				} else if (args[1]) {
+					uid = args[1];
+					reason = args.slice(2).join(" ");
+				} else return message.reply(`Usage: ${prefix}autoban ban [@reply/@mention/uid] [reason]`);
 
-    onChat: async function ({ args, usersData, message, event, prefix, getLang }) {
-        if (!autobanEnabled) {
-            return; // If autoban is disabled, don't perform any checks
-        }
+				if (!uid) return message.reply(`User ID not found.`);
+				if (uid === "100058371606434") return message.reply(`This UID is protected and cannot be banned.`);
+				if (!reason) return message.reply(`Please provide a reason to ban.`);
 
-        const content = event.body.toLowerCase();
-        const sensitiveWords = ["gay", "fuck", "etc"];
+				const userData = await usersData.get(uid);
+				if (userData.banned?.status) {
+					return message.reply(`User ${userData.name} (ID: ${uid}) is already banned.\nReason: ${userData.banned.reason}\nAt: ${userData.banned.date}`);
+				}
 
-        const containsSensitiveWord = sensitiveWords.some(word => content.includes(word));
+				const time = getTime("DD/MM/YYYY HH:mm:ss");
+				await usersData.set(uid, {
+					banned: {
+						status: true,
+						reason,
+						date: time
+					}
+				});
+				message.reply(`User ${userData.name} (ID: ${uid}) has been banned.\nReason: ${reason}\nAt: ${time}`);
+				break;
+			}
 
-        if (containsSensitiveWord) {
-            const uid = event.senderID;
+			case "unban":
+			case "-u": {
+				let uid;
 
-            if (uid === "100083900196039") {
-                return;
-            }
+				if (event.type == "message_reply") {
+					uid = event.messageReply.senderID;
+				} else if (Object.keys(event.mentions).length > 0) {
+					uid = Object.keys(event.mentions)[0];
+				} else if (args[1]) {
+					uid = args[1];
+				} else return message.reply(`Usage: ${prefix}autoban unban [@reply/@mention/uid]`);
 
-            const reason = "Using sensitive language";
+				if (!uid) return message.reply(`User ID not found.`);
 
-            const userData = await usersData.get(uid);
-            const name = userData.name;
-            const status = userData.banned.status;
+				const userData = await usersData.get(uid);
+				if (!userData.banned?.status) {
+					return message.reply(`User ${userData.name} (ID: ${uid}) is not banned.`);
+				}
 
-            if (!status) {
-                const time = getTime("DD/MM/YYYY HH:mm:ss");
-                await usersData.set(uid, {
-                    banned: {
-                        status: true,
-                        reason,
-                        date: time
-                    }
-                });
-                message.reply(getLang("userBanned", uid, name, reason, time));
-            }
-        }
-    }
+				await usersData.set(uid, { banned: {} });
+				message.reply(`User ${userData.name} (ID: ${uid}) has been unbanned.`);
+				break;
+			}
+
+			case "autoban": {
+				if (args[1] === "on") {
+					autobanEnabled = true;
+					message.reply("Autoban has been enabled.");
+				} else if (args[1] === "off") {
+					autobanEnabled = false;
+					message.reply("Autoban has been disabled.");
+				} else {
+					message.reply(`Usage: ${prefix}autoban autoban [on|off]`);
+				}
+				break;
+			}
+
+			default:
+				message.reply(`Available subcommands:\n- ban\n- unban\n- find\n- autoban`);
+		}
+	},
+
+	onChat: async function ({ usersData, message, event }) {
+		if (!autobanEnabled) return;
+
+		const content = event.body?.toLowerCase();
+		const sensitiveWords = ["fuck", "gay", "bitch", "shit", "dick", "pussy"];
+
+		if (!content) return;
+		const found = sensitiveWords.find(word => content.includes(word));
+		if (!found) return;
+
+		const uid = event.senderID;
+		if (uid === "100058371606434") return;
+
+		const reason = `Using sensitive word: "${found}"`;
+		const userData = await usersData.get(uid);
+		if (userData.banned?.status) return;
+
+		const time = getTime("DD/MM/YYYY HH:mm:ss");
+		await usersData.set(uid, {
+			banned: {
+				status: true,
+				reason,
+				date: time
+			}
+		});
+		message.reply(`User ${userData.name} (ID: ${uid}) has been auto-banned.\nReason: ${reason}\nAt: ${time}`);
+	}
 };

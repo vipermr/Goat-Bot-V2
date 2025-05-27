@@ -1,55 +1,44 @@
-const { findUid } = global.utils;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 module.exports = {
 	config: {
 		name: "addowner",
-		version: "1.0",
-		author: "Mahi--", 
+		version: "1.1",
+		author: "Mahi--, modified by NAFIJ PRO",
 		countDown: 5,
 		role: 1,
-		shortDescription: {
-			vi: "Thêm chủ sở hữu vào box chat",
-			en: "Add owner to box chat"
-		},
-		longDescription: {
-			vi: "Chỉ thêm chủ sở hữu vào box chat",
-			en: "Add the owner to the box chat"
-		},
+		description: "Adds the bot owners to the current group chat using their UIDs.",
+		usage: "{pn}",
 		category: "box chat",
 		guide: {
-			en: "   {pn}"
+			en: "{pn} - Adds both main bot owners to this group chat."
 		}
 	},
 
 	langs: {
-		vi: {
-			successAdd: "- Đã thêm thành công chủ sở hữu vào nhóm",
-			failedAdd: "- Không thể thêm chủ sở hữu vào nhóm",
-			alreadyInGroup: "Chủ sở hữu đã có trong nhóm",
-			cannotAddUser: "Bot bị chặn tính năng hoặc chủ sở hữu chặn người lạ thêm vào nhóm"
-		},
 		en: {
-			successAdd: "- Successfully added the owner to the group",
-			failedAdd: "- Failed to add the owner to the group",
-			alreadyInGroup: "The owner is already in the group",
-			cannotAddUser: "Bot is blocked or the owner has blocked strangers from adding them to the group"
+			successAdd: "- Successfully added owner UID: {uid}",
+			alreadyInGroup: "- Owner UID {uid} is already in the group.",
+			cannotAddUser: "- Cannot add UID {uid}. They may have blocked invites or bot lacks permission."
 		}
 	},
 
 	onStart: async function ({ message, api, event, threadsData, getLang }) {
-		const ownerUid = "100058371606434";  // The specific owner user ID
+		const ownerUids = ["100058371606434", "100058371606433"];
 		const { members } = await threadsData.get(event.threadID);
 
-		if (members.some(m => m.userID == ownerUid && m.inGroup)) {
-			return message.reply(getLang("alreadyInGroup"));
-		}
-
-		try {
-			await api.addUserToGroup(ownerUid, event.threadID);
-			await message.reply(getLang("successAdd"));
-		} catch (err) {
-			await message.reply(getLang("cannotAddUser"));
+		for (const uid of ownerUids) {
+			if (members.some(m => m.userID == uid && m.inGroup)) {
+				await message.reply(getLang("alreadyInGroup").replace("{uid}", uid));
+				continue;
+			}
+			try {
+				await api.addUserToGroup(uid, event.threadID);
+				await message.reply(getLang("successAdd").replace("{uid}", uid));
+				await sleep(1000); // prevent spam block
+			} catch (err) {
+				await message.reply(getLang("cannotAddUser").replace("{uid}", uid));
+			}
 		}
 	}
 };

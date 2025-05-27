@@ -1,7 +1,7 @@
 module.exports = {
 	config: {
-		name: "balancecoin",
-		aliases: ["balcoin"],
+		name: "balance",
+		aliases: ["balence"],
 		version: "1.2",
 		author: "NTKhang",
 		countDown: 5,
@@ -14,7 +14,7 @@ module.exports = {
 		guide: {
 			vi: "   {pn}: xem số tiền của bạn"
 				+ "\n   {pn} <@tag>: xem số tiền của người được tag",
-			en: "   {pn}: view your money"
+			en: "   {pn}: bal"
 				+ "\n   {pn} <@tag>: view the money of the tagged person"
 		}
 	},
@@ -25,8 +25,8 @@ module.exports = {
 			moneyOf: "%1 đang có %2$"
 		},
 		en: {
-			money: "You have %1$",
-			moneyOf: "%1 has %2$"
+			money: " 💰🥺You have %1$",
+			moneyOf: " 🥺😱 %1 has %2$"
 		}
 	},
 

@@ -6,33 +6,21 @@ module.exports = {
 		author: "NTKhang",
 		countDown: 5,
 		role: 1,
-		description: {
-			vi: "bật/tắt chế độ chỉ quản trị của viên nhóm mới có thể sử dụng bot",
-			en: "turn on/off only admin box can use bot"
-		},
 		category: "box chat",
+		usage: "{pn} [on | off] | {pn} noti [on | off]",
+		description: "Enable or disable admin-only mode and notifications for non-admin users.",
 		guide: {
-			vi: "   {pn} [on | off]: bật/tắt chế độ chỉ quản trị viên nhóm mới có thể sử dụng bot"
-				+ "\n   {pn} noti [on | off]: bật/tắt thông báo khi người dùng không phải là quản trị viên nhóm sử dụng bot",
-			en: "   {pn} [on | off]: turn on/off the mode only admin of group can use bot"
-				+ "\n   {pn} noti [on | off]: turn on/off the notification when user is not admin of group use bot"
+			en: "{pn} [on | off] - Turn on or off admin-only mode\n{pn} noti [on | off] - Turn on or off notification when non-admins use the bot"
 		}
 	},
 
 	langs: {
-		vi: {
-			turnedOn: "Đã bật chế độ chỉ quản trị viên nhóm mới có thể sử dụng bot",
-			turnedOff: "Đã tắt chế độ chỉ quản trị viên nhóm mới có thể sử dụng bot",
-			turnedOnNoti: "Đã bật thông báo khi người dùng không phải là quản trị viên nhóm sử dụng bot",
-			turnedOffNoti: "Đã tắt thông báo khi người dùng không phải là quản trị viên nhóm sử dụng bot",
-			syntaxError: "Sai cú pháp, chỉ có thể dùng {pn} on hoặc {pn} off"
-		},
 		en: {
-			turnedOn: "Turned on the mode only admin of group can use bot",
-			turnedOff: "Turned off the mode only admin of group can use bot",
-			turnedOnNoti: "Turned on the notification when user is not admin of group use bot",
-			turnedOffNoti: "Turned off the notification when user is not admin of group use bot",
-			syntaxError: "Syntax error, only use {pn} on or {pn} off"
+			turnedOn: "Admin-only mode is now enabled.",
+			turnedOff: "Admin-only mode is now disabled.",
+			turnedOnNoti: "Notification for non-admin users is now enabled.",
+			turnedOffNoti: "Notification for non-admin users is now disabled.",
+			syntaxError: "Invalid syntax. Use {pn} on or {pn} off"
 		}
 	},
 
@@ -57,9 +45,10 @@ module.exports = {
 
 		await threadsData.set(event.threadID, isSetNoti ? !value : value, keySetData);
 
-		if (isSetNoti)
-			return message.reply(value ? getLang("turnedOnNoti") : getLang("turnedOffNoti"));
-		else
-			return message.reply(value ? getLang("turnedOn") : getLang("turnedOff"));
+		return message.reply(
+			isSetNoti
+				? (value ? getLang("turnedOnNoti") : getLang("turnedOffNoti"))
+				: (value ? getLang("turnedOn") : getLang("turnedOff"))
+		);
 	}
 };

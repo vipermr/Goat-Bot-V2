@@ -11,40 +11,18 @@ module.exports = {
 		author: "NTKhang",
 		cooldowns: 5,
 		role: 1,
-		description: {
-			vi: "Tự đổi biệt danh cho thành viên mới vào nhóm chat",
-			en: "Auto change nickname of new member"
-		},
+		description: "Auto change nickname of new member",
 		category: "box chat",
-		guide: {
-			vi: '   {pn} set <nickname>: dùng để cài đặt cấu hình để tự đổi biệt danh, với các shortcut có sẵn:'
-				+ '\n   + {userName}: tên thành viên vào nhóm'
-				+ '\n   + {userID}: id thành viên'
-				+ '\n   Ví dụ:'
-				+ '\n    {pn} set {userName} 🚀'
-				+ '\n\n   {pn} [on | off]: dùng để bật/tắt tính năng này'
-				+ '\n\n   {pn} [view | info]: hiển thị cấu hình hiện tại',
-			en: '   {pn} set <nickname>: use to set config to auto change nickname, with some shortcuts:'
-				+ '\n   + {userName}: name of new member'
-				+ '\n   + {userID}: member id'
-				+ '\n   Example:'
-				+ '\n    {pn} set {userName} 🚀'
-				+ '\n\n   {pn} [on | off]: use to turn on/off this feature'
-				+ '\n\n   {pn} [view | info]: show current config'
-		}
+		guide: '   {pn} set <nickname>: use to set config to auto change nickname, with some shortcuts:'
+			+ '\n   + {userName}: name of new member'
+			+ '\n   + {userID}: member id'
+			+ '\n   Example:'
+			+ '\n    {pn} set {userName} 🚀'
+			+ '\n\n   {pn} [on | off]: use to turn on/off this feature'
+			+ '\n\n   {pn} [view | info]: show current config'
 	},
 
 	langs: {
-		vi: {
-			missingConfig: "Vui lòng nhập cấu hình cần thiết",
-			configSuccess: "Cấu hình đã được cài đặt thành công",
-			currentConfig: "Cấu hình autoSetName hiện tại trong nhóm chat của bạn là:\n%1",
-			notSetConfig: "Hiện tại nhóm bạn chưa cài đặt cấu hình autoSetName",
-			syntaxError: "Sai cú pháp, chỉ có thể dùng \"{pn} on\" hoặc \"{pn} off\"",
-			turnOnSuccess: "Tính năng autoSetName đã được bật",
-			turnOffSuccess: "Tính năng autoSetName đã được tắt",
-			error: "Đã có lỗi xảy ra khi sử dụng chức năng autoSetName, thử tắt tính năng liên kết mời trong nhóm và thử lại sau"
-		},
 		en: {
 			missingConfig: "Please enter the required configuration",
 			configSuccess: "The configuration has been set successfully",
@@ -78,7 +56,7 @@ module.exports = {
 				if (enableOrDisable !== "on" && enableOrDisable !== "off")
 					return message.reply(getLang("syntaxError"));
 				await threadsData.set(event.threadID, enableOrDisable === "on", "settings.enableAutoSetName");
-				return message.reply(enableOrDisable == "on" ? getLang("turnOnSuccess") : getLang("turnOffSuccess"));
+				return message.reply(enableOrDisable === "on" ? getLang("turnOnSuccess") : getLang("turnOffSuccess"));
 			}
 		}
 	},
@@ -97,8 +75,7 @@ module.exports = {
 				const { userFbId: uid, fullName: userName } = user;
 				try {
 					await api.changeNickname(checkShortCut(configAutoSetName, uid, userName), event.threadID, uid);
-				}
-				catch (e) {
+				} catch (e) {
 					return message.reply(getLang("error"));
 				}
 			}

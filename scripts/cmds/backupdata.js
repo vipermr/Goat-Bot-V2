@@ -8,7 +8,7 @@ module.exports = {
 		countDown: 5,
 		role: 2,
 		description: {
-			vi: "Sao lưu dữ liệu của bot (threads, users, dashboard, globalData)",
+			vi: "backupdata )",
 			en: "Backup data of bot (threads, users, dashboard, globalData)"
 		},
 		category: "owner",
@@ -19,7 +19,7 @@ module.exports = {
 
 	langs: {
 		vi: {
-			backedUp: "Đã sao lưu dữ liệu của bot vào thư mục scripts/cmds/tmp"
+			backedUp: "successful backups scripts/cmds/tmp"
 		},
 		en: {
 			backedUp: "Bot data has been backed up to the scripts/cmds/tmp folder"
