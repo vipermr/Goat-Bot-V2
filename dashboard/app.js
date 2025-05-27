@@ -281,6 +281,10 @@ module.exports = async (api) => {
 	app.use("/verifyfbid", verifyFbidRoute);
 	app.use("/api", apiRouter);
 
+		app.get("/test", (req, res) => {
+  res.sendFile(__dirname + "/test.html");
+});
+
 	app.get("*", (req, res) => {
 		res.status(404).render("404");
 	});
