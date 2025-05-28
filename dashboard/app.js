@@ -231,9 +231,6 @@ app.use("/api/thread", threadRoute);
 	const verifyFbidRoute = require("./routes/verifyfbid.js")(paramsForRoutes);
 	const apiRouter = require("./routes/api.js")(paramsForRoutes);
 
-// ✅ Notun line
-const threadApiRoute = require("./api/thread.js")(paramsForRoutes);
-
 	app.get("/about-nafij", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "useless.html"));
 });
