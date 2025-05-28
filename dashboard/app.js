@@ -147,12 +147,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
-const threadRoute = require("./api/thread");
-
-app.use("/api/thread", threadRoute);
-
-// Example test endpoint: https://yourdomain.com/api/thread/test-leave
 	
 	app.use(fileUpload());
 
@@ -319,7 +313,6 @@ app.use("/api/thread", threadRoute);
 	app.use("/verifyfbid", verifyFbidRoute);
 	app.use("/api", apiRouter);
 	//notun line
-	app.use("/api/thread", threadApiRoute);
  app.get("/about-nafij", (req, res) => {
   res.sendFile(path.join(__dirname, "useless.html"));
 });
