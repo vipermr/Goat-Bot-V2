@@ -1,65 +1,92 @@
 [
-    {
-        "key": "sb",
-        "value": "ayVNaBNCuAvrwzCfozNkE96U",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-17T12:51:48.576Z",
-        "lastAccessed": "2025-06-17T12:51:48.577Z"
-    },
-    {
-        "key": "wd",
-        "value": "1280x897",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-17T12:51:48.577Z",
-        "lastAccessed": "2025-06-17T12:51:48.577Z"
-    },
-    {
-        "key": "datr",
-        "value": "w2RRaCpZhMJVlmhsYzwxbNku",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-17T12:51:48.577Z",
-        "lastAccessed": "2025-06-17T12:51:48.577Z"
-    },
-    {
-        "key": "c_user",
-        "value": "61577295005704",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-17T12:51:48.577Z",
-        "lastAccessed": "2025-06-17T12:51:48.577Z"
-    },
-    {
-        "key": "xs",
-        "value": "33%3ApeM7J8JNpo9dAw%3A2%3A1750164698%3A-1%3A-1",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-17T12:51:48.577Z",
-        "lastAccessed": "2025-06-17T12:51:48.577Z"
-    },
-    {
-        "key": "fr",
-        "value": "0OIeJX80W4xjgmHNX.AWd78yFMdu_VknPRGxYq_GaBdyvZI4cdylTDyegT4sNyDvCq9gc.BoUWTD..AAA.0.0.BoUWTc.AWdQqwhuQ15RerPh3p3Gf9_5uew",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-17T12:51:48.577Z",
-        "lastAccessed": "2025-06-17T12:51:48.577Z"
-    },
-    {
-        "key": "presence",
-        "value": "C%7B%22t3%22%3A%5B%5D%2C%22utc3%22%3A1750164703165%2C%22v%22%3A1%7D",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2025-06-17T12:51:48.577Z",
-        "lastAccessed": "2025-06-17T12:51:48.577Z"
-    }
+  {
+    "domain": ".facebook.com",
+    "expirationDate": 1784724700.259884,
+    "hostOnly": false,
+    "httpOnly": true,
+    "name": "sb",
+    "path": "/",
+    "sameSite": "no_restriction",
+    "secure": true,
+    "session": false,
+    "storeId": "0",
+    "value": "ayVNaBNCuAvrwzCfozNkE96U"
+  },
+  {
+    "domain": ".facebook.com",
+    "expirationDate": 1784724676.735024,
+    "hostOnly": false,
+    "httpOnly": true,
+    "name": "datr",
+    "path": "/",
+    "sameSite": "no_restriction",
+    "secure": true,
+    "session": false,
+    "storeId": "0",
+    "value": "w2RRaCpZhMJVlmhsYzwxbNku"
+  },
+  {
+    "domain": ".facebook.com",
+    "expirationDate": 1781700700.259632,
+    "hostOnly": false,
+    "httpOnly": false,
+    "name": "c_user",
+    "path": "/",
+    "sameSite": "no_restriction",
+    "secure": true,
+    "session": false,
+    "storeId": "0",
+    "value": "61577295005704"
+  },
+  {
+    "domain": ".facebook.com",
+    "expirationDate": 1781700700.26005,
+    "hostOnly": false,
+    "httpOnly": true,
+    "name": "xs",
+    "path": "/",
+    "sameSite": "no_restriction",
+    "secure": true,
+    "session": false,
+    "storeId": "0",
+    "value": "33%3ApeM7J8JNpo9dAw%3A2%3A1750164698%3A-1%3A-1"
+  },
+  {
+    "domain": ".facebook.com",
+    "expirationDate": 1757941446.199966,
+    "hostOnly": false,
+    "httpOnly": true,
+    "name": "fr",
+    "path": "/",
+    "sameSite": "no_restriction",
+    "secure": true,
+    "session": false,
+    "storeId": "0",
+    "value": "0OIeJX80W4xjgmHNX.AWcoSXIv6iy2UvNmy0AKdxscULMiHZv-DesGv-t4KwFaflTCrGQ.BoUWTD..AAA.0.0.BoUWfG.AWdnqAShXpOi8HTs1jI_7eBBpSE"
+  },
+  {
+    "domain": ".facebook.com",
+    "hostOnly": false,
+    "httpOnly": false,
+    "name": "presence",
+    "path": "/",
+    "sameSite": "unspecified",
+    "secure": true,
+    "session": true,
+    "storeId": "0",
+    "value": "C%7B%22t3%22%3A%5B%5D%2C%22utc3%22%3A1750165478207%2C%22v%22%3A1%7D"
+  },
+  {
+    "domain": ".facebook.com",
+    "expirationDate": 1750770360,
+    "hostOnly": false,
+    "httpOnly": false,
+    "name": "wd",
+    "path": "/",
+    "sameSite": "lax",
+    "secure": true,
+    "session": false,
+    "storeId": "0",
+    "value": "901x897"
+  }
 ]
