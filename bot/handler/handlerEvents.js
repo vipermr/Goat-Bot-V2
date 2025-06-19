@@ -576,6 +576,9 @@ module.exports = function (api, threadModel, userModel, dashBoardModel, globalMo
 				return log.err("onReaction", `Command "${commandName}" not found`, Reaction);
 			}
 
+			if(event.react == "🙂"){
+message.unsend(event.messageID)
+			}
 			// —————————————— CHECK PERMISSION —————————————— //
 			const roleConfig = getRoleConfig(utils, command, isGroup, threadData, commandName);
 			const needRole = roleConfig.onReaction;
